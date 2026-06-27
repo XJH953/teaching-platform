@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from .models import Task
 
 
@@ -23,5 +24,10 @@ class TaskForm(forms.ModelForm):
         self.teacher = kwargs.pop('teacher', None)
         super().__init__(*args, **kwargs)
         if self.teacher:
-            # Only show classes belonging to this teacher
             self.fields['class_group'].queryset = self.teacher.taught_classes.all()
+
+    def clean_due_date(self):
+        due_date = self.cleaned_data.get('due_date')
+        if due_date is not None and timezone.is_naive(due_date):
+            return timezone.make_aware(due_date)
+        return due_date

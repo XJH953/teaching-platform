@@ -1,8 +1,17 @@
+from datetime import datetime
+
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils import timezone
 from apps.assignments.models import Task, Submission
 from apps.classes.models import ClassGroup
+
+
+def _make_aware(dt_str):
+    """Convert a naive datetime string to timezone-aware datetime."""
+    dt = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M')
+    return timezone.make_aware(dt)
 
 
 class TaskCreateTest(TestCase):
@@ -153,7 +162,7 @@ class TaskDetailTest(TestCase):
             description='背诵《静夜思》并默写',
             class_group=self.class_group,
             teacher=self.teacher_user.profile,
-            due_date='2026-07-01T23:59',
+            due_date=_make_aware('2026-07-01T23:59'),
         )
 
         # 创建学生
@@ -301,7 +310,7 @@ class StudentTaskListTest(TestCase):
             description='背诵《静夜思》',
             class_group=self.class_a,
             teacher=self.teacher_user.profile,
-            due_date='2026-07-01T23:59',
+            due_date=_make_aware('2026-07-01T23:59'),
         )
         self.task_b = Task.objects.create(
             title='作文',
@@ -396,7 +405,7 @@ class StudentSubmitTest(TestCase):
             description='背诵《静夜思》并默写',
             class_group=self.class_group,
             teacher=self.teacher_user.profile,
-            due_date='2026-07-01T23:59',
+            due_date=_make_aware('2026-07-01T23:59'),
         )
 
         self.student_user = User.objects.create_user(
