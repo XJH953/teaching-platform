@@ -489,10 +489,10 @@ class StudentSubmitTest(TestCase):
         """不能提交空内容"""
         response = self.client.post(
             reverse('assignments:student_submit', args=[self.task.pk]),
-            {'content': ''},
+            {'content': ''},  # 无文字也无文件
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '提交内容不能为空')
+        self.assertContains(response, '请填写文字内容或上传文件')
         self.assertFalse(
             Submission.objects.filter(task=self.task, student=self.student_user).exists()
         )
