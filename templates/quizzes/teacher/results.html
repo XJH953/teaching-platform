@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}测验成绩 · {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <h1>{{ quiz.title }} — 测验成绩</h1>
+    <div class="card-meta mt-sm">
+        {{ quiz.class_group.name }} · {{ quiz.question_count }} 道题目
+        {% if attempts %}
+            · {{ attempts|length }} 人已作答
+        {% endif %}
+    </div>
+
+    {% if attempts %}
+        <div class="mt-lg">
+            {% for attempt in attempts %}
+                <div class="card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <span style="font-weight:500;">
+                                {{ attempt.student.profile.get_display_name }}
+                            </span>
+                            <div class="card-meta mt-sm">
+                                完成时间：{{ attempt.completed_at|date:"Y-m-d H:i" }}
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-size:1.25rem;font-weight:500;">
+                                {{ attempt.score }} / {{ attempt.total }}
+                            </span>
+                            <div class="card-meta mt-sm">
+                                {% widthratio attempt.score attempt.total 100 as pct %}
+                                {{ pct }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card mt-lg">
+            <p class="text-muted">尚无学生完成此测验。</p>
+        </div>
+    {% endif %}
+
+    <div class="mt-lg">
+        <a href="{% url 'quizzes:list' %}" class="btn btn-secondary">返回测验列表</a>
+    </div>
+</div>
+{% endblock %}

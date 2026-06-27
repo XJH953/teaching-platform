@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}测验管理 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h1>测验管理</h1>
+        <a href="{% url 'quizzes:create' %}" class="btn btn-primary">创建测验</a>
+    </div>
+
+    {% if class_data %}
+        {% for item in class_data %}
+            <div class="mt-lg">
+                <h2>{{ item.class_group.name }}</h2>
+                {% if item.quizzes %}
+                    {% for quiz in item.quizzes %}
+                        <div class="card">
+                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <div>
+                                    <span style="font-weight:500;font-size:1.0625rem;">
+                                        {{ quiz.title }}
+                                    </span>
+                                    <div class="card-meta mt-sm">
+                                        {{ quiz.question_count }} 道题目
+                                        · 创建于 {{ quiz.created_at|date:"Y-m-d H:i" }}
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:var(--space-sm);">
+                                    <a href="{% url 'quizzes:add_questions' quiz.pk %}" class="btn btn-secondary" style="font-size:0.875rem;">管理题目</a>
+                                    <a href="{% url 'quizzes:results' quiz.pk %}" class="btn btn-secondary" style="font-size:0.875rem;">查看成绩</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card">
+                        <p class="text-muted">暂无测验</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card mt-lg">
+            <p class="text-muted">还没有创建班级，请先创建班级。</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

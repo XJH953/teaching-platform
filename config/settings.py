@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'apps.classes',
     'apps.resources',
     'apps.assignments',
+    'apps.quizzes',
 ]
 
 MIDDLEWARE = [

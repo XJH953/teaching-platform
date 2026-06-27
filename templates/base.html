@@ -24,6 +24,11 @@
                     <a href="{% url 'assignments:student_list' %}">我的作业</a>
                 {% endif %}
                 {% if user.profile.is_teacher %}
+                    <a href="{% url 'quizzes:list' %}">测验</a>
+                {% else %}
+                    <a href="{% url 'quizzes:list' %}">测验</a>
+                {% endif %}
+                {% if user.profile.is_teacher %}
                     <a href="{% url 'resources:create' %}">发布新资源</a>
                     <a href="{% url 'classes:list' %}">班级管理</a>
                 {% endif %}

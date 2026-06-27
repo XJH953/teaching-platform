@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}在线测验 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <h1>在线测验</h1>
+
+    {% if no_class %}
+        <div class="card mt-lg">
+            <p class="text-muted">您尚未分配班级，请联系老师。</p>
+        </div>
+    {% elif quizzes %}
+        <div class="mt-lg">
+            {% for quiz in quizzes %}
+                <div class="card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <span style="font-weight:500;font-size:1.0625rem;">
+                                {{ quiz.title }}
+                            </span>
+                            <div class="card-meta mt-sm">
+                                {{ quiz.class_group.name }}
+                                · {{ quiz.question_count }} 道题目
+                            </div>
+                        </div>
+                        <div>
+                            {% if quiz.student_attempt %}
+                                <span class="badge" style="background:var(--color-info);color:#fff;">
+                                    已完成 {{ quiz.student_attempt.score }}/{{ quiz.student_attempt.total }}
+                                </span>
+                            {% else %}
+                                <a href="{% url 'quizzes:take' quiz.pk %}" class="btn btn-primary" style="font-size:0.875rem;">开始测验</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card mt-lg">
+            <p class="text-muted">暂无测验</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

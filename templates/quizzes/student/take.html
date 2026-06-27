@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ quiz.title }} · 在线测验{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <h1>{{ quiz.title }}</h1>
+    <div class="card-meta mt-sm">
+        {{ quiz.class_group.name }} · {{ questions|length }} 道题目
+    </div>
+
+    {% if attempt %}
+        <div class="card mt-lg">
+            <p class="text-muted">您已经完成过该测验。</p>
+            <div style="font-size:1.25rem;font-weight:500;">
+                得分：{{ attempt.score }} / {{ attempt.total }}
+            </div>
+            <div class="mt-md">
+                <a href="{% url 'quizzes:list' %}" class="btn btn-secondary">返回测验列表</a>
+            </div>
+        </div>
+    {% else %}
+        <form method="post" class="mt-lg" novalidate>
+            {% csrf_token %}
+
+            {% for question in questions %}
+                <div class="card">
+                    <div class="card-header">
+                        {{ forloop.counter }}. {{ question.text }}
+                    </div>
+                    <label style="display:block;padding:var(--space-sm) var(--space-md);cursor:pointer;">
+                        <input type="radio" name="question_{{ question.pk }}" value="a" required>
+                        A. {{ question.option_a }}
+                    </label>
+                    <label style="display:block;padding:var(--space-sm) var(--space-md);cursor:pointer;">
+                        <input type="radio" name="question_{{ question.pk }}" value="b">
+                        B. {{ question.option_b }}
+                    </label>
+                    <label style="display:block;padding:var(--space-sm) var(--space-md);cursor:pointer;">
+                        <input type="radio" name="question_{{ question.pk }}" value="c">
+                        C. {{ question.option_c }}
+                    </label>
+                    <label style="display:block;padding:var(--space-sm) var(--space-md);cursor:pointer;">
+                        <input type="radio" name="question_{{ question.pk }}" value="d">
+                        D. {{ question.option_d }}
+                    </label>
+                </div>
+            {% endfor %}
+
+            <div class="mt-lg" style="display:flex;gap:var(--space-md);">
+                <button type="submit" class="btn btn-primary">提交答案</button>
+                <a href="{% url 'quizzes:list' %}" class="btn btn-secondary">返回</a>
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}测验结果 · {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <h1>{{ quiz.title }} — 测验结果</h1>
+
+    <div class="card mt-lg" style="text-align:center;">
+        <div style="font-size:2rem;font-weight:300;">
+            你的得分：{{ attempt.score }} / {{ attempt.total }}
+        </div>
+        <div class="card-meta mt-sm">
+            完成时间：{{ attempt.completed_at|date:"Y-m-d H:i" }}
+        </div>
+    </div>
+
+    {% if student_answers %}
+        <div class="mt-lg">
+            <h2>答题详情</h2>
+            {% for sa in student_answers %}
+                <div class="card" style="border-left:3px solid {% if sa.is_correct %}var(--color-success){% else %}var(--color-danger){% endif %};">
+                    <div style="font-weight:500;">{{ forloop.counter }}. {{ sa.question.text }}</div>
+                    <div class="mt-sm" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-xs);">
+                        <div>A. {{ sa.question.option_a }}</div>
+                        <div>B. {{ sa.question.option_b }}</div>
+                        <div>C. {{ sa.question.option_c }}</div>
+                        <div>D. {{ sa.question.option_d }}</div>
+                    </div>
+                    <div class="mt-sm">
+                        <span>你的答案：<strong>{{ sa.student_answer|upper }}</strong></span>
+                        <span style="margin-left:var(--space-md);">正确答案：<strong>{{ sa.question.get_correct_display }}</strong></span>
+                        {% if sa.is_correct %}
+                            <span style="margin-left:var(--space-md);color:var(--color-success);">&#10004; 正确</span>
+                        {% else %}
+                            <span style="margin-left:var(--space-md);color:var(--color-danger);">&#10008; 错误</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="mt-lg">
+        <a href="{% url 'quizzes:list' %}" class="btn btn-secondary">返回测验列表</a>
+    </div>
+</div>
+{% endblock %}
