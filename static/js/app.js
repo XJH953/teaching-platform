@@ -84,3 +84,49 @@ function getCsrfToken() {
         .find(row => row.startsWith('csrftoken='));
     return cookie ? cookie.split('=')[1] : '';
 }
+
+// 重置学生密码（老师操作）
+async function resetStudentPassword(name, studentId) {
+    if (!confirm(`确定要重置 ${name} 的密码吗？`)) return;
+
+    try {
+        const resp = await fetch(`/reset-password/${studentId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCsrfToken(),
+            },
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            // 复用密码显示弹窗
+            showResetPasswordModal(data.name, data.password);
+        } else {
+            alert(data.error || '操作失败');
+        }
+    } catch (err) {
+        alert('网络错误，请稍后重试');
+    }
+}
+
+// 显示重置密码弹窗（老师视角）
+function showResetPasswordModal(name, password) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.id = 'reset-password-modal';
+    overlay.innerHTML = `
+        <div class="modal-box">
+            <div class="modal-title">🔑 ${name} 的新密码</div>
+            <p class="modal-note">
+                请将以下密码告诉这位同学：<br>
+                登录后可以自行修改密码。
+            </p>
+            <div class="modal-password">${password}</div>
+            <button class="btn btn-primary" onclick="closeModal('reset-password-modal')">
+                知道了
+            </button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}

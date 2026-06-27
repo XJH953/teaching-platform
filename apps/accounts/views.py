@@ -3,7 +3,7 @@ import string
 
 from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -66,4 +66,30 @@ def first_login_view(request):
         'success': True,
         'password': password,
         'name': name,
+    })
+
+
+@require_POST
+@login_required
+def reset_password_view(request, student_id):
+    """老师重置学生密码"""
+    if not request.user.profile.is_teacher:
+        return JsonResponse({'success': False, 'error': '仅老师可操作'}, status=403)
+
+    student = get_object_or_404(User, id=student_id)
+
+    # 验证该学生确实属于老师的班级
+    if student.profile.class_group is None or \
+       student.profile.class_group.teacher != request.user.profile:
+        return JsonResponse({'success': False, 'error': '该学生不在你的班级中'}, status=403)
+
+    alphabet = string.ascii_letters + string.digits
+    new_password = ''.join(secrets.choice(alphabet) for _ in range(8))
+    student.set_password(new_password)
+    student.save()
+
+    return JsonResponse({
+        'success': True,
+        'password': new_password,
+        'name': student.username,
     })

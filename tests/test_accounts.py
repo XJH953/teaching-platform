@@ -127,3 +127,50 @@ class FirstLoginTest(TestCase):
         response = self.client.post('/first-login/', {'name': '李四'})
         data = response.json()
         self.assertFalse(data['success'])
+
+
+class PasswordResetTest(TestCase):
+    def setUp(self):
+        self.teacher = User.objects.create_user(
+            username='teacher', password='test123'
+        )
+        self.teacher.profile.role = 'teacher'
+        self.teacher.profile.save()
+
+        self.student = User.objects.create_user(
+            username='张三', password='oldpass'
+        )
+        self.student.profile.save()
+
+        # 创建班级并将学生关联到老师的班级
+        self.class_group = ClassGroup.objects.create(
+            name='语文一班',
+            subject='chinese',
+            teacher=self.teacher.profile
+        )
+        self.student.profile.class_group = self.class_group
+        self.student.profile.save()
+
+        self.client.login(username='teacher', password='test123')
+
+    def test_reset_password_as_teacher(self):
+        old_hash = self.student.password
+        response = self.client.post(
+            reverse('accounts:reset_password', args=[self.student.id])
+        )
+        data = response.json()
+        self.assertTrue(data['success'])
+        self.assertIn('password', data)
+
+        self.student.refresh_from_db()
+        self.assertNotEqual(self.student.password, old_hash)
+
+    def test_non_teacher_cannot_reset(self):
+        student_user = User.objects.create_user(
+            username='stu', password='pass'
+        )
+        self.client.login(username='stu', password='pass')
+        response = self.client.post(
+            reverse('accounts:reset_password', args=[self.student.id])
+        )
+        self.assertNotEqual(response.status_code, 200)
