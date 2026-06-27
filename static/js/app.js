@@ -18,16 +18,21 @@ document.addEventListener('htmx:afterSwap', (evt) => {
 });
 
 // 通用的模态框关闭函数
-function closeModal(modalId) {
+function closeModal(modalId, redirectTo) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.add('hidden');
-        setTimeout(() => modal.remove(), 300);
+        setTimeout(() => {
+            modal.remove();
+            if (redirectTo) {
+                window.location.href = redirectTo;
+            }
+        }, 300);
     }
 }
 
 // 显示密码模态框
-function showPasswordModal(name, password) {
+function showPasswordModal(name, password, redirectTo) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.id = 'password-modal';
@@ -41,10 +46,41 @@ function showPasswordModal(name, password) {
             <p class="modal-note">
                 万一不小心忘了也别着急，<br>来找老师，我帮你重新设一个就好。
             </p>
-            <button class="btn btn-primary" onclick="closeModal('password-modal')">
+            <button class="btn btn-primary" onclick="closeModal('password-modal', '${redirectTo || ''}')">
                 我记住啦 ✅
             </button>
         </div>
     `;
     document.body.appendChild(overlay);
+}
+
+// 首次登录流程
+async function firstLogin(name) {
+    try {
+        const resp = await fetch('/first-login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCsrfToken(),
+            },
+            body: `name=${encodeURIComponent(name)}`,
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            showPasswordModal(data.name, data.password, '/welcome/');
+        } else {
+            alert(data.error || '操作失败，请联系老师');
+        }
+    } catch (err) {
+        alert('网络错误，请稍后重试');
+    }
+}
+
+// 获取 CSRF token
+function getCsrfToken() {
+    const cookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='));
+    return cookie ? cookie.split('=')[1] : '';
 }

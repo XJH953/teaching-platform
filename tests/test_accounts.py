@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -81,3 +83,47 @@ class LoginViewTest(TestCase):
         })
         self.assertEqual(response.status_code, 200)  # 返回登录页
         self.assertContains(response, '用户名或密码错误')
+
+
+class FirstLoginTest(TestCase):
+    def setUp(self):
+        # 创建被老师导入但未激活的学生
+        self.student = User.objects.create_user(
+            username='李四',
+            password=''  # 无密码
+        )
+        self.student.is_active = False
+        self.student.save()
+
+    def test_first_login_returns_password(self):
+        """首次登录返回生成的密码"""
+        response = self.client.post('/first-login/', {
+            'name': '李四',
+        })
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data['success'])
+        self.assertIn('password', data)
+        self.assertEqual(len(data['password']), 8)
+
+    def test_first_login_activates_user(self):
+        """首次登录激活账号"""
+        self.client.post('/first-login/', {'name': '李四'})
+        self.student.refresh_from_db()
+        self.assertTrue(self.student.is_active)
+        self.assertTrue(self.student.has_usable_password())
+
+    def test_first_login_name_not_found(self):
+        """不存在的姓名返回错误"""
+        response = self.client.post('/first-login/', {'name': '不存在'})
+        data = response.json()
+        self.assertFalse(data['success'])
+
+    def test_first_login_already_active(self):
+        """已激活的账号不能再次首次登录"""
+        self.student.is_active = True
+        self.student.set_password('existing')
+        self.student.save()
+        response = self.client.post('/first-login/', {'name': '李四'})
+        data = response.json()
+        self.assertFalse(data['success'])
