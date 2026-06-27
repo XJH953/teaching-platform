@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <div style="margin-bottom:var(--space-md);">
+        <a href="{% url 'assignments:list' %}" class="text-muted">← 返回作业列表</a>
+    </div>
+
+    <h1>{{ task.title }}</h1>
+
+    <div class="card mt-md">
+        <div class="card-meta">
+            <div><strong>班级：</strong>{{ task.class_group.name }}（{{ task.class_group.get_subject_display }}）</div>
+            <div class="mt-sm"><strong>截止时间：</strong>
+                {% if task.due_date %}
+                    {{ task.due_date|date:"Y-m-d H:i" }}
+                {% else %}
+                    无截止时间
+                {% endif %}
+            </div>
+            <div class="mt-sm"><strong>发布时间：</strong>{{ task.created_at|date:"Y-m-d H:i" }}</div>
+        </div>
+
+        {% if task.description %}
+            <div class="mt-md" style="white-space:pre-wrap;line-height:1.7;">{{ task.description }}</div>
+        {% endif %}
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;" class="mt-lg">
+        <h2>提交情况</h2>
+        <span class="text-muted">
+            已批改 {{ task.graded_count }} / 已提交 {{ task.submission_count }}
+        </span>
+    </div>
+
+    {% if submissions %}
+        <div class="mt-md">
+            <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--color-border);text-align:left;">
+                        <th style="padding:var(--space-sm) var(--space-md);">学生</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">状态</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">提交时间</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">分数</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in submissions %}
+                        <tr style="border-bottom:1px solid var(--color-border);">
+                            <td style="padding:var(--space-sm) var(--space-md);">{{ sub.student.username }}</td>
+                            <td style="padding:var(--space-sm) var(--space-md);">
+                                {% if sub.status == 'graded' %}
+                                    <span style="color:var(--color-success);">已批改</span>
+                                {% else %}
+                                    <span style="color:var(--color-text-muted);">待批改</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding:var(--space-sm) var(--space-md);">{{ sub.submitted_at|date:"Y-m-d H:i" }}</td>
+                            <td style="padding:var(--space-sm) var(--space-md);">
+                                {% if sub.score is not None %}
+                                    {{ sub.score }} 分
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding:var(--space-sm) var(--space-md);">
+                                <a href="{% url 'assignments:grade' task.pk sub.pk %}" class="btn btn-sm btn-primary">批改</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="card mt-md">
+            <p class="text-muted">暂无学生提交</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

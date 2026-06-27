@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}布置作业 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <h1>布置新作业</h1>
+
+    <div class="card mt-lg">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="text-muted mt-sm" style="color:var(--color-danger);">{{ form.title.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="text-muted mt-sm" style="color:var(--color-danger);">{{ form.description.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.class_group.id_for_label }}" class="form-label">{{ form.class_group.label }}</label>
+                {{ form.class_group }}
+                {% if form.class_group.errors %}
+                    <div class="text-muted mt-sm" style="color:var(--color-danger);">{{ form.class_group.errors.0 }}</div>
+                {% endif %}
+                {% if not form.class_group.field.queryset.exists %}
+                    <div class="text-muted mt-sm">请先创建班级，才能布置作业。</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.due_date.id_for_label }}" class="form-label">{{ form.due_date.label }}</label>
+                {{ form.due_date }}
+                {% if form.due_date.errors %}
+                    <div class="text-muted mt-sm" style="color:var(--color-danger);">{{ form.due_date.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mt-lg" style="display:flex;gap:var(--space-md);">
+                <button type="submit" class="btn btn-primary">布置作业</button>
+                <a href="{% url 'assignments:list' %}" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}作业管理 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h1>作业管理</h1>
+        <a href="{% url 'assignments:create' %}" class="btn btn-primary">布置新作业</a>
+    </div>
+
+    {% if class_data %}
+        {% for item in class_data %}
+            <div class="mt-lg">
+                <h2>{{ item.class_group.name }}（{{ item.class_group.get_subject_display }}）</h2>
+
+                {% if item.tasks %}
+                    <div class="mt-md">
+                        {% for task in item.tasks %}
+                            <div class="card">
+                                <div style="display:flex;align-items:center;justify-content:space-between;">
+                                    <div>
+                                        <a href="{% url 'assignments:detail' task.pk %}" style="font-weight:500;font-size:1.0625rem;">
+                                            {{ task.title }}
+                                        </a>
+                                        <div class="card-meta mt-sm">
+                                            {% if task.due_date %}
+                                                截止：{{ task.due_date|date:"Y-m-d H:i" }}
+                                            {% else %}
+                                                无截止时间
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="card-meta" style="text-align:right;">
+                                        已提交 {{ task.submission_count_annotated }} / {{ task.total_students }} 人
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="card mt-md">
+                        <p class="text-muted">该班级暂无作业</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card mt-lg">
+            <p class="text-muted">您还没有创建班级，请先创建班级后再布置作业。</p>
+            <div class="mt-md">
+                <a href="{% url 'classes:list' %}" class="btn btn-secondary">管理班级</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

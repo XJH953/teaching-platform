@@ -30,12 +30,30 @@ def login_view(request):
 def dashboard_view(request):
     context = {}
     if request.user.profile.is_teacher:
+        from apps.assignments.models import Submission
+
         classes = request.user.profile.taught_classes.all()
         context['class_count'] = classes.count()
         context['student_count'] = sum(c.student_count for c in classes)
         context['active_student_count'] = sum(
             c.students.filter(user__is_active=True).count() for c in classes
         )
+        context['pending_count'] = Submission.objects.filter(
+            task__teacher=request.user.profile,
+            status='pending',
+        ).count()
+    else:
+        from apps.assignments.models import Task
+
+        student = request.user
+        if student.profile.class_group:
+            context['pending_count'] = Task.objects.filter(
+                class_group=student.profile.class_group,
+            ).exclude(
+                submissions__student=student,
+            ).count()
+        else:
+            context['pending_count'] = 0
     return render(request, 'dashboard.html', context)
 
 

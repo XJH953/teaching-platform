@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}我的作业 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <h1>我的作业</h1>
+
+    {% if no_class %}
+        <div class="card mt-lg">
+            <p class="text-muted">您尚未分配班级，请联系老师。</p>
+        </div>
+    {% elif tasks %}
+        <div class="mt-lg">
+            {% for task in tasks %}
+                <div class="card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <a href="{% url 'assignments:student_submit' task.pk %}"
+                               style="font-weight:500;font-size:1.0625rem;">
+                                {{ task.title }}
+                            </a>
+                            <div class="card-meta mt-sm">
+                                {{ task.class_group.name }}
+                                {% if task.due_date %}
+                                    · 截止：{{ task.due_date|date:"Y-m-d H:i" }}
+                                {% else %}
+                                    · 无截止时间
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            {% if task.student_submission %}
+                                {% if task.student_submission.status == 'graded' %}
+                                    <span class="badge" style="background:var(--color-info);color:#fff;">已批改</span>
+                                {% else %}
+                                    <span class="badge" style="background:var(--color-success);color:#fff;">已提交</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge" style="background:var(--color-danger);color:#fff;">待提交</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card mt-lg">
+            <p class="text-muted">暂无作业</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

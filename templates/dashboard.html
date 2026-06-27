@@ -17,8 +17,10 @@
             </div>
             <div class="card">
                 <div class="card-header">待批作业</div>
-                <div style="font-size:2rem;font-weight:300;">0</div>
-                <div class="card-meta mt-sm">后续版本开放</div>
+                <div style="font-size:2rem;font-weight:300;">{{ pending_count }}</div>
+                <div class="card-meta mt-sm">
+                    <a href="{% url 'assignments:list' %}">查看作业 →</a>
+                </div>
             </div>
             <div class="card">
                 <div class="card-header">学生总数</div>
@@ -40,8 +42,10 @@
             </div>
             <div class="card">
                 <div class="card-header">待交作业</div>
-                <div style="font-size:2rem;font-weight:300;">0</div>
-                <div class="card-meta mt-sm">后续版本开放</div>
+                <div style="font-size:2rem;font-weight:300;">{{ pending_count }}</div>
+                <div class="card-meta mt-sm">
+                    <a href="{% url 'assignments:student_list' %}">查看作业 →</a>
+                </div>
             </div>
         </div>
     {% endif %}

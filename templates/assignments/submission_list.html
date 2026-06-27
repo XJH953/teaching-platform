@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}提交列表 · {{ task.title }} · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <div style="margin-bottom:var(--space-md);">
+        <a href="{% url 'assignments:detail' task.pk %}" class="text-muted">← 返回作业详情</a>
+    </div>
+
+    <h1>{{ task.title }} — 提交列表</h1>
+
+    <div class="card-meta mt-sm">
+        班级：{{ task.class_group.name }} · 已提交 {{ submissions|length }} 份
+    </div>
+
+    {% if submissions %}
+        <div class="mt-lg">
+            {% for sub in submissions %}
+                <div class="card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div>
+                            <strong>{{ sub.student.username }}</strong>
+                            <span class="card-meta" style="margin-left:var(--space-md);">
+                                提交于 {{ sub.submitted_at|date:"Y-m-d H:i" }}
+                            </span>
+                        </div>
+                        <div>
+                            {% if sub.status == 'graded' %}
+                                <span style="color:var(--color-success);">
+                                    已批改 · {{ sub.score }} 分
+                                </span>
+                            {% else %}
+                                <span class="text-muted">待批改</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if sub.content %}
+                        <div class="mt-md" style="white-space:pre-wrap;line-height:1.7;background:var(--color-bg);padding:var(--space-md);border-radius:var(--radius);">
+                            {{ sub.content }}
+                        </div>
+                    {% endif %}
+
+                    {% if sub.comment %}
+                        <div class="mt-sm card-meta">
+                            <strong>评语：</strong>{{ sub.comment }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card mt-md">
+            <p class="text-muted">暂无提交</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

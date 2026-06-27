@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}批改作业 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <div style="margin-bottom:var(--space-md);">
+        <a href="{% url 'assignments:detail' submission.task.pk %}" class="text-muted">← 返回作业详情</a>
+    </div>
+
+    <h1>批改作业</h1>
+
+    <div class="card mt-md">
+        <div class="card-meta">
+            <div><strong>学生：</strong>{{ submission.student.username }}</div>
+            <div class="mt-sm"><strong>提交时间：</strong>{{ submission.submitted_at|date:"Y-m-d H:i" }}</div>
+            <div class="mt-sm"><strong>状态：</strong>
+                {% if submission.status == 'graded' %}
+                    <span style="color:var(--color-success);">已批改</span>
+                {% else %}
+                    <span style="color:var(--color-text-muted);">待批改</span>
+                {% endif %}
+            </div>
+            {% if submission.score is not None %}
+            <div class="mt-sm"><strong>当前分数：</strong>{{ submission.score }} 分</div>
+            {% endif %}
+        </div>
+
+        {% if submission.content %}
+            <div class="mt-md" style="white-space:pre-wrap;line-height:1.7;background:var(--color-bg);padding:var(--space-md);border-radius:var(--radius);">
+                {{ submission.content }}
+            </div>
+        {% endif %}
+    </div>
+
+    <h2 class="mt-lg">评分</h2>
+    <div class="card mt-md">
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                <label for="score" style="font-weight:500;display:block;margin-bottom:var(--space-sm);">
+                    分数
+                </label>
+                <input
+                    type="number"
+                    name="score"
+                    id="score"
+                    class="form-input"
+                    placeholder="输入分数（整数）"
+                    value="{{ submission.score|default:'' }}"
+                    min="0"
+                    max="100"
+                >
+            </div>
+
+            <div class="mt-md">
+                <label for="comment" style="font-weight:500;display:block;margin-bottom:var(--space-sm);">
+                    评语
+                </label>
+                <textarea
+                    name="comment"
+                    id="comment"
+                    class="form-input"
+                    rows="6"
+                    placeholder="输入评语..."
+                >{{ submission.comment }}</textarea>
+            </div>
+
+            <div class="mt-md">
+                <button type="submit" class="btn btn-primary">提交评分</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

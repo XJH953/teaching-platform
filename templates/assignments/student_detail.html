@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }} · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <div style="margin-bottom:var(--space-md);">
+        <a href="{% url 'assignments:student_list' %}" class="text-muted">← 返回我的作业</a>
+    </div>
+
+    <h1>{{ task.title }}</h1>
+
+    {# --- Task info card --- #}
+    <div class="card mt-md">
+        <div class="card-meta">
+            <div><strong>班级：</strong>{{ task.class_group.name }}（{{ task.class_group.get_subject_display }}）</div>
+            <div class="mt-sm"><strong>老师：</strong>{{ task.teacher.get_display_name }}</div>
+            <div class="mt-sm"><strong>截止时间：</strong>
+                {% if task.due_date %}
+                    {{ task.due_date|date:"Y-m-d H:i" }}
+                {% else %}
+                    无截止时间
+                {% endif %}
+            </div>
+            <div class="mt-sm"><strong>发布时间：</strong>{{ task.created_at|date:"Y-m-d H:i" }}</div>
+        </div>
+
+        {% if task.description %}
+            <div class="mt-md" style="white-space:pre-wrap;line-height:1.7;">{{ task.description }}</div>
+        {% endif %}
+    </div>
+
+    {# --- Submission status --- #}
+    {% if submission %}
+        {# Already submitted --- #}
+        <h2 class="mt-lg">我的提交</h2>
+        <div class="card mt-md">
+            <div class="card-meta">
+                已于 {{ submission.submitted_at|date:"Y-m-d H:i" }} 提交
+            </div>
+
+            {% if submission.content %}
+                <div class="mt-md" style="white-space:pre-wrap;line-height:1.7;background:var(--color-bg);padding:var(--space-md);border-radius:var(--radius);">
+                    {{ submission.content }}
+                </div>
+            {% endif %}
+        </div>
+
+        {# Grading info --- #}
+        {% if submission.status == 'graded' %}
+            <h2 class="mt-lg">批改结果</h2>
+            <div class="card mt-md" style="border-left:4px solid var(--color-info);">
+                <div style="text-align:center;">
+                    <div style="font-size:3rem;font-weight:300;color:var(--color-info);">
+                        {{ submission.score|default:"—" }}
+                    </div>
+                    <div class="card-meta">分数</div>
+                </div>
+
+                {% if submission.comment %}
+                    <div class="mt-md" style="background:var(--color-bg);padding:var(--space-md);border-radius:var(--radius);">
+                        <strong>老师评语：</strong>
+                        <div class="mt-sm" style="white-space:pre-wrap;line-height:1.7;">{{ submission.comment }}</div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+    {% else %}
+        {# Not yet submitted --- #}
+        <h2 class="mt-lg">提交作业</h2>
+        <div class="card mt-md">
+            <form method="post">
+                {% csrf_token %}
+                <div>
+                    <label for="content" style="font-weight:500;display:block;margin-bottom:var(--space-sm);">
+                        你的答案
+                    </label>
+                    <textarea
+                        name="content"
+                        id="content"
+                        class="form-input"
+                        rows="10"
+                        placeholder="在此输入你的答案..."
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="mt-md">
+                    <button type="submit" class="btn btn-primary">提交作业</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
