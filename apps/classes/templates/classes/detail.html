@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ class_group.name }} · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-slide-right">
+    <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-lg);">
+        <a href="{% url 'classes:list' %}" style="color:var(--color-text-muted);">← 返回</a>
+        <h1 style="margin:0;">{{ class_group.name }}</h1>
+    </div>
+
+    <p class="text-muted">{{ class_group.get_subject_display }} · {{ students|length }} 名学生</p>
+
+    {% if students %}
+        <div class="mt-lg">
+            <h3>学生名单</h3>
+            <div class="card mt-md">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--color-border);">
+                            <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-weight:400;font-size:0.8125rem;color:var(--color-text-muted);">姓名</th>
+                            <th style="text-align:left;padding:var(--space-sm) var(--space-md);font-weight:400;font-size:0.8125rem;color:var(--color-text-muted);">状态</th>
+                            <th style="text-align:right;padding:var(--space-sm) var(--space-md);font-weight:400;font-size:0.8125rem;color:var(--color-text-muted);">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr style="border-bottom:1px solid var(--color-border);">
+                            <td style="padding:var(--space-sm) var(--space-md);">{{ student.user.username }}</td>
+                            <td style="padding:var(--space-sm) var(--space-md);">
+                                {% if student.user.is_active %}
+                                    <span style="color:var(--color-success);font-size:0.8125rem;">已激活</span>
+                                {% else %}
+                                    <span style="color:var(--color-text-muted);font-size:0.8125rem;">未激活</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align:right;padding:var(--space-sm) var(--space-md);">
+                                <button class="btn btn-ghost"
+                                        style="font-size:0.8125rem;"
+                                        onclick="resetStudentPassword('{{ student.user.username }}', {{ student.user.id }})">
+                                    重置密码
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="card text-center mt-lg" style="padding:var(--space-xl);">
+            <p class="text-muted">该班级还没有学生。</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

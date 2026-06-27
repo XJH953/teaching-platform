@@ -4,4 +4,6 @@ from . import views
 app_name = 'classes'
 urlpatterns = [
     path('', views.class_list_view, name='list'),
+    path('create/', views.class_create_view, name='create'),
+    path('<int:class_id>/', views.class_detail_view, name='detail'),
 ]
