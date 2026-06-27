@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Count, Q
+from django.db.models import Avg, Count, Q
 from django.db import IntegrityError
 from .models import Task, Submission
 from .forms import TaskForm
@@ -229,3 +229,81 @@ def grade_submission_view(request, task_pk, submission_pk):
     return render(request, 'assignments/grade.html', {
         'submission': submission,
     })
+
+
+@teacher_required
+def grade_analytics_view(request):
+    """成绩分析页 — 老师查看所有班级的成绩统计"""
+    profile = request.user.profile
+
+    # All tasks by this teacher
+    tasks = Task.objects.filter(teacher=profile)
+    submissions = Submission.objects.filter(task__in=tasks, status='graded')
+
+    # Overall stats
+    total_assignments = tasks.count()
+    total_submissions = Submission.objects.filter(task__in=tasks).count()
+    graded_submissions = submissions.count()
+    overall_avg = submissions.aggregate(avg=Avg('score'))['avg'] or 0
+
+    # Per-assignment stats
+    task_stats = tasks.annotate(
+        sub_count=Count('submissions'),
+        graded_count_annotated=Count('submissions', filter=Q(submissions__status='graded')),
+        avg_score=Avg('submissions__score', filter=Q(submissions__status='graded')),
+    ).order_by('-created_at')
+
+    # Per-class stats
+    classes = profile.taught_classes.all().order_by('-created_at')
+    class_stats = []
+    for c in classes:
+        class_subs = Submission.objects.filter(
+            task__class_group=c, status='graded'
+        )
+        class_stats.append({
+            'class': c,
+            'avg': class_subs.aggregate(avg=Avg('score'))['avg'] or 0,
+            'count': class_subs.count(),
+            'student_count': c.student_count,
+        })
+
+    # Per-student stats within this teacher's classes
+    student_class_map = {}
+    for c in classes:
+        for student_profile in c.students.select_related('user').all():
+            student_class_map[student_profile.user_id] = c
+
+    student_subs = Submission.objects.filter(
+        task__in=tasks, status='graded'
+    ).select_related('student')
+
+    student_scores = {}
+    for sub in student_subs:
+        uid = sub.student_id
+        if uid not in student_scores:
+            student_scores[uid] = []
+        student_scores[uid].append(sub.score)
+
+    student_stats = []
+    for uid, scores in student_scores.items():
+        from django.contrib.auth.models import User
+        user = User.objects.get(pk=uid)
+        cls = student_class_map.get(uid)
+        student_stats.append({
+            'student': user,
+            'class': cls,
+            'avg': sum(scores) / len(scores),
+            'count': len(scores),
+        })
+    student_stats.sort(key=lambda x: x['avg'], reverse=True)
+
+    context = {
+        'total_assignments': total_assignments,
+        'total_submissions': total_submissions,
+        'graded_submissions': graded_submissions,
+        'overall_avg': overall_avg,
+        'task_stats': task_stats,
+        'class_stats': class_stats,
+        'student_stats': student_stats,
+    }
+    return render(request, 'assignments/analytics.html', context)

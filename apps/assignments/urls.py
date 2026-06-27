@@ -5,6 +5,7 @@ app_name = 'assignments'
 urlpatterns = [
     # Teacher URLs
     path('', views.task_list_view, name='list'),
+    path('analytics/', views.grade_analytics_view, name='analytics'),
     path('create/', views.task_create_view, name='create'),
     path('<int:pk>/', views.task_detail_view, name='detail'),
     path('<int:pk>/submissions/', views.submission_list_view, name='submissions'),

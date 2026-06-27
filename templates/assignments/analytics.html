@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}成绩分析 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <div style="display:flex;align-items:center;justify-content:space-between;" class="mb-lg">
+        <h1>成绩分析</h1>
+        <a href="{% url 'assignments:list' %}" class="text-muted">← 返回作业列表</a>
+    </div>
+
+    {# ===== Overall Stats ===== #}
+    <h2>总体统计</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:var(--space-md);" class="mt-md mb-lg">
+        <div class="card text-center">
+            <div class="text-muted" style="font-size:0.8125rem;">总作业数</div>
+            <div style="font-size:1.75rem;font-weight:500;margin-top:var(--space-xs);">{{ total_assignments }}</div>
+        </div>
+        <div class="card text-center">
+            <div class="text-muted" style="font-size:0.8125rem;">总提交数</div>
+            <div style="font-size:1.75rem;font-weight:500;margin-top:var(--space-xs);">{{ total_submissions }}</div>
+        </div>
+        <div class="card text-center">
+            <div class="text-muted" style="font-size:0.8125rem;">已批改数</div>
+            <div style="font-size:1.75rem;font-weight:500;margin-top:var(--space-xs);">{{ graded_submissions }}</div>
+        </div>
+        <div class="card text-center">
+            <div class="text-muted" style="font-size:0.8125rem;">整体平均分</div>
+            <div style="font-size:1.75rem;font-weight:500;margin-top:var(--space-xs);">{{ overall_avg|floatformat:1 }}</div>
+        </div>
+    </div>
+
+    {# ===== Per-Assignment Breakdown ===== #}
+    <h2>各作业分析</h2>
+    {% if task_stats %}
+        <div class="mt-md mb-lg">
+            <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--color-border);text-align:left;">
+                        <th style="padding:var(--space-sm) var(--space-md);">作业标题</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">班级</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">已提交</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">已批改</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">平均分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in task_stats %}
+                        <tr style="border-bottom:1px solid var(--color-border);">
+                            <td style="padding:var(--space-sm) var(--space-md);">
+                                <a href="{% url 'assignments:detail' task.pk %}" style="font-weight:500;">
+                                    {{ task.title }}
+                                </a>
+                            </td>
+                            <td style="padding:var(--space-sm) var(--space-md);">{{ task.class_group.name }}</td>
+                            <td style="padding:var(--space-sm) var(--space-md);">{{ task.sub_count }}</td>
+                            <td style="padding:var(--space-sm) var(--space-md);">{{ task.graded_count_annotated }}</td>
+                            <td style="padding:var(--space-sm) var(--space-md);">
+                                {% if task.avg_score is not None %}
+                                    {{ task.avg_score|floatformat:1 }}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="card mt-md mb-lg">
+            <p class="text-muted">暂无作业数据</p>
+        </div>
+    {% endif %}
+
+    {# ===== Per-Class Cards ===== #}
+    <h2>班级概览</h2>
+    {% if class_stats %}
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--space-md);" class="mt-md mb-lg">
+            {% for cs in class_stats %}
+                <div class="card">
+                    <div class="card-header">{{ cs.class.name }}</div>
+                    <div class="card-meta">
+                        <div>{{ cs.class.get_subject_display }}</div>
+                        <div class="mt-sm">
+                            平均分：
+                            <strong>
+                                {% if cs.count > 0 %}
+                                    {{ cs.avg|floatformat:1 }}
+                                {% else %}
+                                    <span class="text-muted">暂无数据</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+                        <div>学生数：{{ cs.student_count }} 人</div>
+                        <div>已批改提交：{{ cs.count }} 份</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card mt-md mb-lg">
+            <p class="text-muted">暂无班级数据</p>
+        </div>
+    {% endif %}
+
+    {# ===== Student Ranking ===== #}
+    <h2>学生成绩</h2>
+    {% if student_stats %}
+        <div class="mt-md mb-lg">
+            <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr style="border-bottom:2px solid var(--color-border);text-align:left;">
+                        <th style="padding:var(--space-sm) var(--space-md);">学生</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">班级</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">已批改作业数</th>
+                        <th style="padding:var(--space-sm) var(--space-md);">平均分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in student_stats %}
+                        <tr style="border-bottom:1px solid var(--color-border);">
+                            <td style="padding:var(--space-sm) var(--space-md);">{{ entry.student.username }}</td>
+                            <td style="padding:var(--space-sm) var(--space-md);">
+                                {% if entry.class %}
+                                    {{ entry.class.name }}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding:var(--space-sm) var(--space-md);">{{ entry.count }}</td>
+                            <td style="padding:var(--space-sm) var(--space-md);">
+                                <strong>{{ entry.avg|floatformat:1 }}</strong>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="card mt-md mb-lg">
+            <p class="text-muted">暂无学生成绩数据</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
