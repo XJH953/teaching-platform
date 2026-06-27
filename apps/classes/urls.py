@@ -3,5 +3,5 @@ from . import views
 
 app_name = 'classes'
 urlpatterns = [
-    # 后续 task 填充
+    path('', views.class_list_view, name='list'),
 ]

@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.urls import reverse
 from django.contrib.auth.models import User
 from apps.accounts.models import Profile
 from apps.classes.models import ClassGroup
@@ -52,3 +53,31 @@ class ProfileModelTest(TestCase):
     def test_student_cannot_be_teacher(self):
         """学生不是老师"""
         self.assertFalse(self.student_user.profile.is_teacher)
+
+
+class LoginViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='teacher1', password='testpass123'
+        )
+        self.user.profile.role = 'teacher'
+        self.user.profile.save()
+
+    def test_login_page_returns_200(self):
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_login_redirects_to_dashboard(self):
+        response = self.client.post('/', {
+            'username': 'teacher1',
+            'password': 'testpass123',
+        })
+        self.assertRedirects(response, '/dashboard/')
+
+    def test_login_invalid_credentials(self):
+        response = self.client.post('/', {
+            'username': 'teacher1',
+            'password': 'wrongpassword',
+        })
+        self.assertEqual(response.status_code, 200)  # 返回登录页
+        self.assertContains(response, '用户名或密码错误')

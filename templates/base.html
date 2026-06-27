@@ -15,7 +15,7 @@
     {% if user.is_authenticated %}
     <nav class="navbar">
         <div class="container navbar-inner">
-            <a href="{% url 'dashboard' %}" class="navbar-brand">教学平台</a>
+            <a href="{% url 'accounts:dashboard' %}" class="navbar-brand">教学平台</a>
             <div class="navbar-links">
                 {% if user.profile.is_teacher %}
                     <a href="{% url 'classes:list' %}">班级管理</a>
@@ -23,7 +23,7 @@
                 <span class="navbar-user">
                     {{ user.profile.get_display_name }}
                 </span>
-                <a href="{% url 'logout' %}">退出</a>
+                <a href="{% url 'accounts:logout' %}">退出</a>
             </div>
         </div>
     </nav>
