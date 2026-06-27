@@ -1,0 +1,56 @@
+/* ===== View Transitions ===== */
+
+/* 默认淡入淡出 */
+.transition-fade {
+    animation: fadeIn var(--transition-normal);
+}
+
+/* 右推左出 — 进入下一层级 */
+.transition-slide-right {
+    animation: slideFromRight var(--transition-normal);
+}
+
+@keyframes slideFromRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* 上推 — 返回上一层级 */
+.transition-slide-up {
+    animation: slideFromBottom var(--transition-normal);
+}
+
+@keyframes slideFromBottom {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 缩放聚焦 — 详情展开 */
+.transition-zoom {
+    animation: zoomIn var(--transition-normal);
+}
+
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* HTMX 内容交换 */
+.htmx-swapping {
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.htmx-settling {
+    opacity: 1;
+}
+
+/* HTMX 请求指示器 */
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
