@@ -18,6 +18,11 @@
             </div>
             {% endif %}
 
+            <div x-show="hint" x-cloak
+                 style="background: #FFF9E6; color: #8B6914; font-size: 0.875rem; padding: var(--space-sm) var(--space-md); border-radius: var(--radius); margin-bottom: var(--space-md); text-align: center;"
+                 x-text="hint">
+            </div>
+
             <div class="form-group">
                 <input type="text"
                        name="username"
@@ -40,27 +45,42 @@
             </button>
         </form>
 
-        <div class="mt-lg" style="text-align: center;">
-            <a href="javascript:void(0)"
-               @click="showFirstLogin"
-               style="font-size: 0.875rem; color: var(--color-text-muted);">
-                还没有账号？首次登录
-            </a>
+        <div style="margin-top: var(--space-xl); text-align: center; width: 100%; max-width: 360px;">
+            <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md);">
+                <span style="flex:1; height:1px; background: var(--color-border);"></span>
+                <span style="font-size: 0.75rem; color: var(--color-text-muted);">我是新同学</span>
+                <span style="flex:1; height:1px; background: var(--color-border);"></span>
+            </div>
+            <button type="button"
+                    class="btn btn-secondary"
+                    style="width: 100%;"
+                    @click="showFirstLogin">
+                ✨ 首次登录 · 领取我的账号
+            </button>
+            <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: var(--space-sm);">
+                输入你的名字后点击上方按钮，系统会为你生成专属密码
+            </p>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block js %}
+<style>
+    [x-cloak] { display: none !important; }
+</style>
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('loginForm', () => ({
+            hint: '',
             showFirstLogin() {
                 const name = this.$refs.username.value.trim();
                 if (!name) {
+                    this.hint = '请先在输入框里填写你的名字哦～';
                     this.$refs.username.focus();
                     return;
                 }
+                this.hint = '';
                 firstLogin(name);
             }
         }));
