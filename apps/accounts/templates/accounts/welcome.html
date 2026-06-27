@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎 · 教学平台</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/wizard.css' %}">
+</head>
+<body x-data="wizard" x-init="init">
+    <div class="wizard-container">
+        <div class="wizard-slides">
+
+            <!-- 第 1 页 -->
+            <div class="wizard-slide"
+                 :class="{ active: page === 0, 'exit-left': exiting === 0 }">
+                <div class="wizard-illustration">
+                    <svg width="160" height="120" viewBox="0 0 160 120" class="illust-book">
+                        <!-- 书本图标 -->
+                        <rect x="30" y="20" width="45" height="80" rx="3" fill="none" stroke="#4B6584" stroke-width="2"/>
+                        <rect x="80" y="20" width="45" height="80" rx="3" fill="none" stroke="#4B6584" stroke-width="2"/>
+                        <line x1="75" y1="25" x2="75" y2="95" stroke="#4B6584" stroke-width="1.5"/>
+                        <line x1="40" y1="40" x2="70" y2="40" stroke="#4B6584" stroke-width="1" opacity="0.5"/>
+                        <line x1="40" y1="52" x2="70" y2="52" stroke="#4B6584" stroke-width="1" opacity="0.5"/>
+                        <line x1="40" y1="64" x2="65" y2="64" stroke="#4B6584" stroke-width="1" opacity="0.5"/>
+                        <line x1="85" y1="40" x2="115" y2="40" stroke="#4B6584" stroke-width="1" opacity="0.5"/>
+                        <line x1="85" y1="52" x2="115" y2="52" stroke="#4B6584" stroke-width="1" opacity="0.5"/>
+                    </svg>
+                </div>
+                <p class="wizard-text">
+                    在这里，你可以浏览老师发布的<br>
+                    课件、资料和学习资源<br>
+                    按学科分类，随时查找
+                </p>
+            </div>
+
+            <!-- 第 2 页 -->
+            <div class="wizard-slide"
+                 :class="{ active: page === 1, 'exit-left': exiting === 1 }">
+                <div class="wizard-illustration">
+                    <svg width="160" height="120" viewBox="0 0 160 120" class="illust-pen">
+                        <!-- 笔+纸图标 -->
+                        <rect x="40" y="25" width="80" height="70" rx="2" fill="none" stroke="#4B6584" stroke-width="1.5"/>
+                        <line x1="55" y1="42" x2="105" y2="42" stroke="#4B6584" stroke-width="1" opacity="0.4"/>
+                        <line x1="55" y1="53" x2="105" y2="53" stroke="#4B6584" stroke-width="1" opacity="0.4"/>
+                        <line x1="55" y1="64" x2="95" y2="64" stroke="#4B6584" stroke-width="1" opacity="0.4"/>
+                        <line x1="55" y1="75" x2="100" y2="75" stroke="#4B6584" stroke-width="1" opacity="0.4"/>
+                        <!-- 笔 -->
+                        <line x1="130" y1="10" x2="120" y2="50" stroke="#4B6584" stroke-width="2.5" stroke-linecap="round"/>
+                        <circle cx="120" cy="52" r="3" fill="#4B6584"/>
+                    </svg>
+                </div>
+                <p class="wizard-text">
+                    在线提交作业和作文<br>
+                    老师批改后，你可以随时查看<br>
+                    评语和分数
+                </p>
+            </div>
+
+            <!-- 第 3 页 -->
+            <div class="wizard-slide"
+                 :class="{ active: page === 2, 'exit-left': exiting === 2 }">
+                <div class="wizard-illustration">
+                    <svg width="160" height="120" viewBox="0 0 160 120" class="illust-check">
+                        <!-- 完成图标 -->
+                        <circle cx="80" cy="55" r="35" fill="none" stroke="#27AE60" stroke-width="2"/>
+                        <polyline points="62,55 76,69 98,41" fill="none" stroke="#27AE60" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <p class="wizard-text">
+                    准备好了吗？<br>
+                    让我们一起开始学习之旅吧～
+                </p>
+            </div>
+        </div>
+
+        <!-- 进度点 -->
+        <div class="wizard-dots">
+            <span class="wizard-dot" :class="{ active: page === 0 }"></span>
+            <span class="wizard-dot" :class="{ active: page === 1 }"></span>
+            <span class="wizard-dot" :class="{ active: page === 2 }"></span>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="wizard-footer">
+            <button class="btn btn-ghost" @click="skip">
+                跳过
+            </button>
+            <button class="btn btn-primary" @click="next" x-show="page < 2">
+                下一页 →
+            </button>
+            <button class="btn btn-primary" @click="finish" x-show="page === 2">
+                开始使用
+            </button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/alpinejs@3.14.9/dist/cdn.min.js" defer></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('wizard', () => ({
+                page: 0,
+                exiting: null,
+                totalPages: 3,
+
+                init() {
+                    // 页面加载时第一页淡入
+                },
+
+                next() {
+                    if (this.page < this.totalPages - 1) {
+                        this.exiting = this.page;
+                        setTimeout(() => {
+                            this.page++;
+                            this.exiting = null;
+                        }, 300);
+                    }
+                },
+
+                skip() {
+                    window.location.href = '/dashboard/';
+                },
+
+                finish() {
+                    window.location.href = '/dashboard/';
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

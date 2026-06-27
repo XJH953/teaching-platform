@@ -34,6 +34,11 @@ def dashboard_view(request):
     return render(request, 'dashboard.html', context)
 
 
+@login_required
+def welcome_view(request):
+    return render(request, 'accounts/welcome.html')
+
+
 @require_POST
 def first_login_view(request):
     """首次登录：用姓名领取密码"""
