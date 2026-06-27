@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ resource.title }} · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-slide-right">
+    {# ---- Back link ---- #}
+    <a href="{% url 'resources:list' %}" class="text-muted" style="font-size:0.875rem;">
+        &larr; 返回资源库
+    </a>
+
+    {# ---- Title & meta ---- #}
+    <h1 class="mt-md">{{ resource.title }}</h1>
+
+    <div class="mt-sm" style="display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap;">
+        <span style="display:inline-block;padding:2px 10px;font-size:0.8125rem;border-radius:var(--radius);
+                     {% if resource.subject == 'chinese' %}
+                         background:#EBF5FB;color:#2E86C1;
+                     {% else %}
+                         background:#FDEDEC;color:#C0392B;
+                     {% endif %}">
+            {{ resource.get_subject_display }}
+        </span>
+        <span class="text-muted" style="font-size:0.875rem;">
+            {{ resource.author.get_display_name }}
+        </span>
+        <span class="text-muted" style="font-size:0.875rem;">
+            {{ resource.created_at|date:"Y-m-d H:i" }}
+        </span>
+    </div>
+
+    {# ---- Content ---- #}
+    {% if resource.content %}
+        <div class="card mt-lg" style="line-height:1.8;white-space:pre-wrap;word-break:break-word;">
+            {{ resource.content }}
+        </div>
+    {% else %}
+        <div class="card mt-lg text-center" style="padding:var(--space-2xl);">
+            <p class="text-muted">该资源暂无正文内容。</p>
+        </div>
+    {% endif %}
+
+    {# ---- File download ---- #}
+    {% if resource.file %}
+        <div class="mt-md">
+            <a href="{{ resource.file.url }}" class="btn btn-primary" download>
+                📎 下载附件：{{ resource.file.name|slice:"10:" }}
+            </a>
+        </div>
+    {% endif %}
+
+    {# ---- Edit / Delete (author only) ---- #}
+    {% if is_author %}
+        <div class="mt-lg" style="display:flex;gap:var(--space-sm);">
+            <a href="{% url 'resources:edit' resource.pk %}" class="btn btn-secondary">编辑</a>
+            <a href="{% url 'resources:delete' resource.pk %}" class="btn btn-danger">删除</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

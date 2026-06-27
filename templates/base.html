@@ -17,7 +17,9 @@
         <div class="container navbar-inner">
             <a href="{% url 'accounts:dashboard' %}" class="navbar-brand">教学平台</a>
             <div class="navbar-links">
+                <a href="{% url 'resources:list' %}">资源库</a>
                 {% if user.profile.is_teacher %}
+                    <a href="{% url 'resources:create' %}">发布新资源</a>
                     <a href="{% url 'classes:list' %}">班级管理</a>
                 {% endif %}
                 <span class="navbar-user">

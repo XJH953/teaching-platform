@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}资源库 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-slide-right">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h1>资源库</h1>
+        {% if user.profile.is_teacher %}
+            <a href="{% url 'resources:create' %}" class="btn btn-primary">+ 发布新资源</a>
+        {% endif %}
+    </div>
+
+    {# ---- Filter bar ---- #}
+    <div class="mt-lg" style="display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap;">
+        <a href="{% url 'resources:list' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}"
+           class="btn {% if not current_subject %}btn-primary{% else %}btn-secondary{% endif %}"
+           style="padding:6px 16px;font-size:0.875rem;">
+            全部
+        </a>
+        {% for key, label in subject_labels.items %}
+            <a href="{% url 'resources:list' %}?subject={{ key }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}"
+               class="btn {% if current_subject == key %}btn-primary{% else %}btn-secondary{% endif %}"
+               style="padding:6px 16px;font-size:0.875rem;">
+                {{ label }}
+            </a>
+        {% endfor %}
+    </div>
+
+    {# ---- Search form ---- #}
+    <form method="GET" action="{% url 'resources:list' %}" class="mt-md" style="display:flex;gap:var(--space-sm);max-width:420px;">
+        {% if current_subject %}
+            <input type="hidden" name="subject" value="{{ current_subject }}">
+        {% endif %}
+        <input type="text" name="q" value="{{ search_query }}" placeholder="搜索标题或内容…"
+               class="form-input" style="flex:1;">
+        <button type="submit" class="btn btn-primary" style="padding:10px 20px;">搜索</button>
+    </form>
+
+    {# ---- Resource cards ---- #}
+    <div class="mt-lg">
+        {% if resources %}
+            {% for resource in resources %}
+                <a href="{% url 'resources:detail' resource.pk %}" style="text-decoration:none;color:inherit;">
+                    <div class="card" style="cursor:pointer;transition:box-shadow var(--transition-fast);">
+                        <div class="card-header">{{ resource.title }}</div>
+                        <div class="card-meta" style="display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap;">
+                            <span style="display:inline-block;padding:2px 10px;font-size:0.75rem;border-radius:var(--radius);
+                                         {% if resource.subject == 'chinese' %}
+                                             background:#EBF5FB;color:#2E86C1;
+                                         {% else %}
+                                             background:#FDEDEC;color:#C0392B;
+                                         {% endif %}">
+                                {{ resource.get_subject_display }}
+                            </span>
+                            <span>{{ resource.author.get_display_name }}</span>
+                            <span>{{ resource.created_at|date:"Y-m-d" }}</span>
+                        </div>
+                        {% if resource.content %}
+                            <div class="mt-sm text-muted" style="font-size:0.875rem;line-height:1.6;">
+                                {{ resource.content|truncatechars:100 }}
+                            </div>
+                        {% elif resource.file %}
+                            <div class="mt-sm text-muted" style="font-size:0.875rem;">
+                                📎 附件资源
+                            </div>
+                        {% endif %}
+                    </div>
+                </a>
+            {% endfor %}
+        {% else %}
+            <div class="card text-center" style="padding:var(--space-2xl);">
+                <p class="text-muted">
+                    {% if search_query or current_subject %}
+                        没有找到匹配的资源。
+                        <a href="{% url 'resources:list' %}">清除筛选</a>
+                    {% else %}
+                        还没有任何资源。
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

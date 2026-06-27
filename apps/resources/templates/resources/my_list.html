@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}我的资源 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-slide-right">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg);">
+        <h1>我的资源</h1>
+        <a href="{% url 'resources:create' %}" class="btn btn-primary">+ 发布新资源</a>
+    </div>
+
+    {% if messages %}
+        {% for msg in messages %}
+            <div style="color:var(--color-success);font-size:0.875rem;margin-bottom:var(--space-md);">{{ msg }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if resources %}
+        {% for resource in resources %}
+        <div class="card">
+            <div class="card-header">{{ resource.title }}</div>
+            <div class="card-meta">
+                {{ resource.get_subject_display }} · {{ resource.created_at|date:"Y-m-d H:i" }}
+            </div>
+            <div class="mt-sm" style="display:flex;gap:var(--space-sm);">
+                <a href="{% url 'resources:edit' resource.pk %}" class="btn btn-secondary" style="padding:6px 16px;font-size:0.8125rem;">编辑</a>
+                <a href="{% url 'resources:delete' resource.pk %}" class="btn btn-danger" style="padding:6px 16px;font-size:0.8125rem;">删除</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card text-center" style="padding:var(--space-2xl);">
+            <p class="text-muted">还没有发布资源，点击上方按钮发布第一个资源吧。</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

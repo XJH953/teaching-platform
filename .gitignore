@@ -8,7 +8,8 @@ build/
 # Django
 *.sqlite3
 *.sqlite3-journal
-media/
+media/*
+!media/.gitkeep
 
 # Virtual environment
 venv/

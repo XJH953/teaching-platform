@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}删除资源 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-slide-right" style="max-width: 480px;">
+    <h1>确认删除</h1>
+
+    <div class="card mt-lg">
+        <p>确定要删除资源 <strong>"{{ resource.title }}"</strong> 吗？此操作不可撤销。</p>
+
+        <form method="POST" class="mt-lg" style="display:flex;gap:var(--space-sm);">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">确认删除</button>
+            <a href="{% url 'resources:my_list' %}" class="btn btn-ghost">取消</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
