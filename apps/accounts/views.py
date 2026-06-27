@@ -54,6 +54,22 @@ def dashboard_view(request):
             ).count()
         else:
             context['pending_count'] = 0
+    from datetime import datetime
+
+    hour = datetime.now().hour
+    if hour < 10:
+        context['greeting'] = '早安'
+        context['subtitle'] = '一日之计在于晨 ☀️'
+    elif hour < 14:
+        context['greeting'] = '午安'
+        context['subtitle'] = '午间也要保持专注'
+    elif hour < 18:
+        context['greeting'] = '下午好'
+        context['subtitle'] = '今天的教学辛苦了'
+    else:
+        context['greeting'] = '晚上好'
+        context['subtitle'] = '忙碌了一天，来回顾下吧'
+
     return render(request, 'dashboard.html', context)
 
 

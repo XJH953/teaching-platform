@@ -4,35 +4,42 @@
 
 {% block content %}
 <div class="container transition-fade">
-    <h1>欢迎，{{ user.profile.get_display_name }}</h1>
+    <div style="margin-bottom: var(--space-lg);">
+        <h1 style="margin-bottom: 4px;">{{ greeting }}，{{ user.profile.get_display_name }}</h1>
+        <p class="text-muted" style="font-size: 0.875rem;">{{ subtitle }}</p>
+    </div>
 
     {% if user.profile.is_teacher %}
-        <div class="mt-lg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-md);">
-            <div class="card">
-                <div class="card-header">我的班级</div>
-                <div style="font-size:2rem;font-weight:300;">{{ class_count }}</div>
-                <div class="card-meta mt-sm">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--space-md);">
+            <div class="stat-card">
+                <div class="stat-icon">🏫</div>
+                <div class="card-header" style="margin-bottom: 4px;">我的班级</div>
+                <div class="stat-number">{{ class_count }}</div>
+                <div class="stat-link">
                     <a href="{% url 'classes:list' %}">管理班级 →</a>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header">待批作业</div>
-                <div style="font-size:2rem;font-weight:300;">{{ pending_count }}</div>
-                <div class="card-meta mt-sm">
-                    <a href="{% url 'assignments:list' %}">查看作业 →</a>
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="card-header" style="margin-bottom: 4px;">待批作业</div>
+                <div class="stat-number">{{ pending_count }}</div>
+                <div class="stat-link">
+                    <a href="{% url 'assignments:list' %}">批改作业 →</a>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header">学生总数</div>
-                <div style="font-size:2rem;font-weight:300;">{{ student_count }}</div>
-                <div class="card-meta mt-sm">已激活 {{ active_student_count }} 人</div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="card-header" style="margin-bottom: 4px;">学生总数</div>
+                <div class="stat-number">{{ student_count }}</div>
+                <div class="text-muted" style="font-size:0.8125rem;">已激活 {{ active_student_count }} 人</div>
             </div>
         </div>
     {% else %}
-        <div class="mt-lg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-md);">
-            <div class="card">
-                <div class="card-header">我的班级</div>
-                <div style="font-size:2rem;font-weight:300;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:var(--space-md);">
+            <div class="stat-card">
+                <div class="stat-icon">🏫</div>
+                <div class="card-header" style="margin-bottom: 4px;">我的班级</div>
+                <div class="stat-number" style="font-size:1.5rem;">
                     {% if user.profile.class_group %}
                         {{ user.profile.class_group.name }}
                     {% else %}
@@ -40,10 +47,11 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="card">
-                <div class="card-header">待交作业</div>
-                <div style="font-size:2rem;font-weight:300;">{{ pending_count }}</div>
-                <div class="card-meta mt-sm">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="card-header" style="margin-bottom: 4px;">待交作业</div>
+                <div class="stat-number">{{ pending_count }}</div>
+                <div class="stat-link">
                     <a href="{% url 'assignments:student_list' %}">查看作业 →</a>
                 </div>
             </div>

@@ -1,54 +1,49 @@
 /* ===== View Transitions ===== */
 
-/* 默认淡入淡出 */
+/* 淡入 */
 .transition-fade {
-    animation: fadeIn var(--transition-normal);
+    animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 右推左出 — 进入下一层级 */
+/* 右推 — 进入下一层 */
 .transition-slide-right {
-    animation: slideFromRight var(--transition-normal);
+    animation: slideFromRight 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideFromRight {
-    from { opacity: 0; transform: translateX(24px); }
+    from { opacity: 0; transform: translateX(28px); }
     to   { opacity: 1; transform: translateX(0); }
 }
 
-/* 上推 — 返回上一层级 */
+/* 上推 — 返回上一层 */
 .transition-slide-up {
-    animation: slideFromBottom var(--transition-normal);
+    animation: slideFromBottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideFromBottom {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 缩放聚焦 — 详情展开 */
+/* 缩放 — 详情展开 */
 .transition-zoom {
-    animation: zoomIn var(--transition-normal);
+    animation: zoomIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes zoomIn {
-    from { opacity: 0; transform: scale(0.95); }
+    from { opacity: 0; transform: scale(0.96); }
     to   { opacity: 1; transform: scale(1); }
 }
 
 /* HTMX 内容交换 */
 .htmx-swapping {
     opacity: 0;
-    transition: opacity var(--transition-fast);
+    transition: opacity 0.15s ease;
 }
 
 .htmx-settling {
-    opacity: 1;
-}
-
-/* HTMX 请求指示器 */
-.htmx-indicator {
     opacity: 0;
-    transition: opacity var(--transition-fast);
+    animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .htmx-request .htmx-indicator {

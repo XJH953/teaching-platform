@@ -82,7 +82,7 @@ class LoginViewTest(TestCase):
             'password': 'wrongpassword',
         })
         self.assertEqual(response.status_code, 200)  # 返回登录页
-        self.assertContains(response, '用户名或密码错误')
+        self.assertContains(response, '姓名或密码错误')
 
 
 class FirstLoginTest(TestCase):

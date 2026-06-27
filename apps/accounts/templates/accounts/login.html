@@ -3,100 +3,132 @@
 {% block title %}教学平台{% endblock %}
 
 {% block content %}
-<div class="container" x-data="loginForm">
-    <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+<div class="container" x-data="loginForm" style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+    <div style="width: 100%; max-width: 400px;">
 
-        <h1 style="font-size: 1.75rem; margin-bottom: var(--space-xl); font-weight: 400; letter-spacing: 0.04em;">
-            教学平台
-        </h1>
+        <!-- Logo & 标题 -->
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <div style="width: 56px; height: 56px; margin: 0 auto var(--space-md); border-radius: 16px; background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; box-shadow: 0 4px 16px rgba(75, 101, 132, 0.25);">
+                📖
+            </div>
+            <h1 style="font-size: 1.5rem; font-weight: 600; letter-spacing: 0.02em; margin: 0;">
+                教学平台
+            </h1>
+            <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin-top: 4px;">
+                语文 &amp; 政治 · 学习空间
+            </p>
+        </div>
 
         <!-- 消息提示 -->
         <div x-show="msg" x-cloak
-             :style="msgType === 'error' ? 'background:#FFF0F0;color:#A03030' : 'background:#FFF9E6;color:#8B6914'"
-             style="font-size: 0.875rem; padding: var(--space-sm) var(--space-md); border-radius: var(--radius); margin-bottom: var(--space-md); text-align: center; max-width: 360px; width: 100%;"
+             :style="msgType === 'error' ? 'background:#FEF2F2;color:#991B1B;border:1px solid #FECACA' : 'background:#FFFBEB;color:#92400E;border:1px solid #FDE68A'"
+             style="font-size: 0.8125rem; padding: 10px 14px; border-radius: var(--radius); margin-bottom: var(--space-md); text-align: center;"
              x-text="msg">
         </div>
 
+        <!-- ====== 登录卡片 ====== -->
+        <div style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-xl); box-shadow: var(--shadow-lg); border: 1px solid var(--color-border);">
+
         <!-- ====== 登录面板 ====== -->
-        <div x-show="mode === 'login'" style="width: 100%; max-width: 360px;">
+        <div x-show="mode === 'login'">
             <form method="POST" style="width: 100%;">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="login">
 
                 {% if form.errors %}
-                <div style="color: var(--color-danger); font-size: 0.875rem; margin-bottom: var(--space-md); text-align: center;">
-                    用户名或密码错误，请重试。
+                <div style="color: var(--color-danger); font-size: 0.8125rem; margin-bottom: var(--space-md); text-align: center; padding: 8px; background: #FEF2F2; border-radius: var(--radius);">
+                    姓名或密码错误，请重试
                 </div>
                 {% endif %}
 
                 <div class="form-group">
+                    <label class="form-label">姓名</label>
                     <input type="text"
                            name="username"
                            class="form-input"
                            placeholder="输入你的名字"
                            x-ref="nameInput"
+                           style="border-radius: var(--radius);"
                            required>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">密码</label>
                     <input type="password"
                            name="password"
                            class="form-input"
-                           placeholder="密码"
-                           x-ref="passInput">
+                           placeholder="输入密码"
+                           x-ref="passInput"
+                           style="border-radius: var(--radius);">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    登 录
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-sm);">
+                    登  录
                 </button>
             </form>
 
-            <p style="text-align: center; margin-top: var(--space-lg);">
+            <p style="text-align: center; margin-top: var(--space-md);">
                 <a href="javascript:void(0)"
                    @click="switchMode('first')"
-                   style="font-size: 0.875rem; color: var(--color-accent);">
-                    ✨ 还没有账号？首次登录领取
+                   style="font-size: 0.8125rem; color: var(--color-accent); font-weight: 500;">
+                    ✨ 首次登录？领取你的专属密码
                 </a>
             </p>
         </div>
 
         <!-- ====== 首次登录面板 ====== -->
-        <div x-show="mode === 'first'" style="width: 100%; max-width: 360px;">
+        <div x-show="mode === 'first'">
             <form @submit.prevent="doFirstLogin"
                   style="width: 100%;">
-                {% csrf_token %}
-                <div style="font-size: 1.125rem; margin-bottom: var(--space-lg); text-align: center; color: var(--color-text);">
-                    首次登录 · 领取你的账号
+                <div style="font-size: 1.0625rem; font-weight: 600; margin-bottom: var(--space-lg); text-align: center; color: var(--color-text);">
+                    ✨ 领取你的专属账号
                 </div>
 
+                <p style="font-size: 0.8125rem; color: var(--color-text-muted); text-align: center; margin-bottom: var(--space-md); line-height: 1.6;">
+                    只需输入真实姓名，<br>系统将为你生成独一无二的密码
+                </p>
+
                 <div class="form-group">
+                    <label class="form-label">你的姓名</label>
                     <input type="text"
                            name="first_name"
                            class="form-input"
-                           placeholder="输入你的真实姓名"
+                           placeholder="输入真实姓名"
                            x-ref="firstInput"
                            required
                            autofocus>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-sm);">
                     领取我的专属密码
                 </button>
             </form>
 
             <p style="font-size: 0.75rem; color: var(--color-text-muted); text-align: center; margin-top: var(--space-sm);">
-                系统会为你生成独一无二的密码，请记在小本本上哦～
+                📝 请记在小本本上，不要弄丢哦～
             </p>
 
             <p style="text-align: center; margin-top: var(--space-lg);">
                 <a href="javascript:void(0)"
                    @click="switchMode('login')"
-                   style="font-size: 0.875rem; color: var(--color-text-muted);">
+                   style="font-size: 0.8125rem; color: var(--color-text-muted);">
                     ← 返回登录
                 </a>
             </p>
         </div>
 
+        </div><!-- /卡片 -->
+
     </div>
 </div>
+
+<!-- 登录页背景 -->
+<style>
+    html, body {
+        min-height: 100vh;
+    }
+    body {
+        background: linear-gradient(160deg, #F5F2EF 0%, #EDE9E3 30%, #F0EDE9 60%, #F7F4F1 100%);
+    }
+</style>
 {% endblock %}
 
 {% block js %}

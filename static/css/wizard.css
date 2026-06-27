@@ -8,6 +8,7 @@
     justify-content: center;
     padding: var(--space-xl);
     position: relative;
+    background: linear-gradient(160deg, #F5F2EF 0%, #EDE9E3 30%, #F0EDE9 60%, #F7F4F1 100%);
 }
 
 .wizard-slides {
