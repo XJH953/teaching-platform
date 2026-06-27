@@ -5,62 +5,96 @@
 {% block content %}
 <div class="container" x-data="loginForm">
     <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <h1 style="font-size: 1.75rem; margin-bottom: var(--space-2xl); font-weight: 400; letter-spacing: 0.04em;">
+
+        <h1 style="font-size: 1.75rem; margin-bottom: var(--space-xl); font-weight: 400; letter-spacing: 0.04em;">
             教学平台
         </h1>
 
-        <form method="POST" style="width: 100%; max-width: 360px;">
-            {% csrf_token %}
+        <!-- 消息提示 -->
+        <div x-show="msg" x-cloak
+             :style="msgType === 'error' ? 'background:#FFF0F0;color:#A03030' : 'background:#FFF9E6;color:#8B6914'"
+             style="font-size: 0.875rem; padding: var(--space-sm) var(--space-md); border-radius: var(--radius); margin-bottom: var(--space-md); text-align: center; max-width: 360px; width: 100%;"
+             x-text="msg">
+        </div>
 
-            {% if form.errors %}
-            <div style="color: var(--color-danger); font-size: 0.875rem; margin-bottom: var(--space-md); text-align: center;">
-                用户名或密码错误，请重试。
-            </div>
-            {% endif %}
+        <!-- ====== 登录面板 ====== -->
+        <div x-show="mode === 'login'" style="width: 100%; max-width: 360px;">
+            <form method="POST" style="width: 100%;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="login">
 
-            <div x-show="hint" x-cloak
-                 style="background: #FFF9E6; color: #8B6914; font-size: 0.875rem; padding: var(--space-sm) var(--space-md); border-radius: var(--radius); margin-bottom: var(--space-md); text-align: center;"
-                 x-text="hint">
-            </div>
+                {% if form.errors %}
+                <div style="color: var(--color-danger); font-size: 0.875rem; margin-bottom: var(--space-md); text-align: center;">
+                    用户名或密码错误，请重试。
+                </div>
+                {% endif %}
 
-            <div class="form-group">
-                <input type="text"
-                       name="username"
-                       class="form-input"
-                       placeholder="输入你的名字"
-                       x-ref="username"
-                       required
-                       autofocus>
-            </div>
+                <div class="form-group">
+                    <input type="text"
+                           name="username"
+                           class="form-input"
+                           placeholder="输入你的名字"
+                           x-ref="nameInput"
+                           required>
+                </div>
+                <div class="form-group">
+                    <input type="password"
+                           name="password"
+                           class="form-input"
+                           placeholder="密码"
+                           x-ref="passInput">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    登 录
+                </button>
+            </form>
 
-            <div class="form-group">
-                <input type="password"
-                       name="password"
-                       class="form-input"
-                       placeholder="密码">
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">
-                登 录
-            </button>
-        </form>
-
-        <div style="margin-top: var(--space-xl); text-align: center; width: 100%; max-width: 360px;">
-            <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-md);">
-                <span style="flex:1; height:1px; background: var(--color-border);"></span>
-                <span style="font-size: 0.75rem; color: var(--color-text-muted);">我是新同学</span>
-                <span style="flex:1; height:1px; background: var(--color-border);"></span>
-            </div>
-            <button type="button"
-                    class="btn btn-secondary"
-                    style="width: 100%;"
-                    @click="showFirstLogin">
-                ✨ 首次登录 · 领取我的账号
-            </button>
-            <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: var(--space-sm);">
-                输入你的名字后点击上方按钮，系统会为你生成专属密码
+            <p style="text-align: center; margin-top: var(--space-lg);">
+                <a href="javascript:void(0)"
+                   @click="switchMode('first')"
+                   style="font-size: 0.875rem; color: var(--color-accent);">
+                    ✨ 还没有账号？首次登录领取
+                </a>
             </p>
         </div>
+
+        <!-- ====== 首次登录面板 ====== -->
+        <div x-show="mode === 'first'" style="width: 100%; max-width: 360px;">
+            <form @submit.prevent="doFirstLogin"
+                  style="width: 100%;">
+                {% csrf_token %}
+                <div style="font-size: 1.125rem; margin-bottom: var(--space-lg); text-align: center; color: var(--color-text);">
+                    首次登录 · 领取你的账号
+                </div>
+
+                <div class="form-group">
+                    <input type="text"
+                           name="first_name"
+                           class="form-input"
+                           placeholder="输入你的真实姓名"
+                           x-ref="firstInput"
+                           required
+                           autofocus>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    领取我的专属密码
+                </button>
+            </form>
+
+            <p style="font-size: 0.75rem; color: var(--color-text-muted); text-align: center; margin-top: var(--space-sm);">
+                系统会为你生成独一无二的密码，请记在小本本上哦～
+            </p>
+
+            <p style="text-align: center; margin-top: var(--space-lg);">
+                <a href="javascript:void(0)"
+                   @click="switchMode('login')"
+                   style="font-size: 0.875rem; color: var(--color-text-muted);">
+                    ← 返回登录
+                </a>
+            </p>
+        </div>
+
     </div>
 </div>
 {% endblock %}
@@ -72,15 +106,30 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('loginForm', () => ({
-            hint: '',
-            showFirstLogin() {
-                const name = this.$refs.username.value.trim();
+            mode: 'login',
+            msg: '',
+            msgType: 'info',
+
+            switchMode(m) {
+                this.mode = m;
+                this.msg = '';
+                // 切换后自动聚焦对应输入框
+                const ref = m === 'login' ? 'nameInput' : 'firstInput';
+                this.$nextTick(() => {
+                    const el = this.$refs[ref];
+                    if (el) el.focus();
+                });
+            },
+
+            doFirstLogin() {
+                const name = this.$refs.firstInput.value.trim();
                 if (!name) {
-                    this.hint = '请先在输入框里填写你的名字哦～';
-                    this.$refs.username.focus();
+                    this.msg = '请先在输入框里填写你的名字哦～';
+                    this.msgType = 'info';
+                    this.$refs.firstInput.focus();
                     return;
                 }
-                this.hint = '';
+                this.msg = '';
                 firstLogin(name);
             }
         }));
