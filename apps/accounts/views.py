@@ -122,3 +122,41 @@ def logout_view(request):
     """支持 GET 和 POST 的退出视图"""
     logout(request)
     return redirect('/')
+
+
+@login_required
+def change_password_view(request):
+    """学生/老师自行修改密码"""
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password', '')
+        new_password = request.POST.get('new_password', '')
+        new_password2 = request.POST.get('new_password2', '')
+
+        user = request.user
+
+        if not user.check_password(old_password):
+            return render(request, 'accounts/change_password.html', {
+                'error': '当前密码不正确'
+            })
+
+        if len(new_password) < 4:
+            return render(request, 'accounts/change_password.html', {
+                'error': '新密码至少需要 4 位'
+            })
+
+        if new_password != new_password2:
+            return render(request, 'accounts/change_password.html', {
+                'error': '两次输入的新密码不一致'
+            })
+
+        user.set_password(new_password)
+        user.save()
+        # 重新登录以保持会话
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, user)
+
+        return render(request, 'accounts/change_password.html', {
+            'success': True
+        })
+
+    return render(request, 'accounts/change_password.html')

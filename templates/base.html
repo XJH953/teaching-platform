@@ -37,6 +37,7 @@
                 <span class="navbar-user">
                     {{ user.profile.get_display_name }}
                 </span>
+                <a href="{% url 'accounts:change_password' %}">修改密码</a>
                 <a href="{% url 'accounts:logout' %}">退出</a>
             </div>
         </div>
