@@ -31,6 +31,13 @@
                 {{ submission.content }}
             </div>
         {% endif %}
+
+        {% if submission.file %}
+            <div class="mt-md">
+                <strong>附件：</strong>
+                <a href="{{ submission.file.url }}" class="btn btn-secondary" download>📎 下载查看</a>
+            </div>
+        {% endif %}
     </div>
 
     <h2 class="mt-lg">评分</h2>

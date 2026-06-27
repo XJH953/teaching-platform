@@ -63,7 +63,6 @@ def student_task_detail_view(request, pk):
         pk=pk, class_group=student_class,
     )
 
-    # Check if already submitted
     submission = Submission.objects.filter(
         task=task, student=student
     ).first()
@@ -74,8 +73,10 @@ def student_task_detail_view(request, pk):
             return redirect('assignments:student_submit', pk=task.pk)
 
         content = request.POST.get('content', '').strip()
-        if not content:
-            messages.error(request, '提交内容不能为空。')
+        uploaded_file = request.FILES.get('file')
+
+        if not content and not uploaded_file:
+            messages.error(request, '请填写文字内容或上传文件。')
             return render(request, 'assignments/student_detail.html', {
                 'task': task,
                 'submission': None,
@@ -86,6 +87,7 @@ def student_task_detail_view(request, pk):
                 task=task,
                 student=student,
                 content=content,
+                file=uploaded_file,
             )
             messages.success(request, '作业提交成功！')
         except IntegrityError:

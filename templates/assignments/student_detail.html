@@ -44,6 +44,15 @@
                     {{ submission.content }}
                 </div>
             {% endif %}
+
+            {% if submission.file %}
+                <div class="mt-md">
+                    <strong>上传的附件：</strong>
+                    <a href="{{ submission.file.url }}" class="btn btn-secondary" style="margin-top:var(--space-xs);" download>
+                        📎 下载附件
+                    </a>
+                </div>
+            {% endif %}
         </div>
 
         {# Grading info --- #}
@@ -70,20 +79,33 @@
         {# Not yet submitted --- #}
         <h2 class="mt-lg">提交作业</h2>
         <div class="card mt-md">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div>
                     <label for="content" style="font-weight:500;display:block;margin-bottom:var(--space-sm);">
-                        你的答案
+                        文字答案
                     </label>
                     <textarea
                         name="content"
                         id="content"
                         class="form-input"
                         rows="10"
-                        placeholder="在此输入你的答案..."
-                        required
+                        placeholder="在此输入你的答案（也可以只上传照片，或两者都有）"
                     ></textarea>
+                </div>
+
+                <div class="mt-md">
+                    <label for="file" style="font-weight:500;display:block;margin-bottom:var(--space-sm);">
+                        上传照片/文件
+                    </label>
+                    <input
+                        type="file"
+                        name="file"
+                        id="file"
+                        class="form-input"
+                        accept="image/*,.pdf,.doc,.docx"
+                        style="padding:8px;">
+                    <div class="card-meta mt-sm">支持图片、PDF、Word 文档（可选）</div>
                 </div>
 
                 <div class="mt-md">

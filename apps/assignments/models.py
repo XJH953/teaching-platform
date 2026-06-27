@@ -45,6 +45,7 @@ class Submission(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='submissions')
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')
     content = models.TextField('答案/作文', blank=True, default='')
+    file = models.FileField('附件', upload_to='submissions/', blank=True, null=True)
     submitted_at = models.DateTimeField('提交时间', auto_now_add=True)
     score = models.IntegerField('分数', null=True, blank=True)
     comment = models.TextField('评语', blank=True, default='')
