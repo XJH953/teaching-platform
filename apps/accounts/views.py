@@ -30,7 +30,12 @@ def login_view(request):
 def dashboard_view(request):
     context = {}
     if request.user.profile.is_teacher:
-        context['class_count'] = request.user.profile.taught_classes.count()
+        classes = request.user.profile.taught_classes.all()
+        context['class_count'] = classes.count()
+        context['student_count'] = sum(c.student_count for c in classes)
+        context['active_student_count'] = sum(
+            c.students.filter(user__is_active=True).count() for c in classes
+        )
     return render(request, 'dashboard.html', context)
 
 

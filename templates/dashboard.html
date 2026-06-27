@@ -3,19 +3,47 @@
 {% block title %}仪表盘 · 教学平台{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container transition-fade">
     <h1>欢迎，{{ user.profile.get_display_name }}</h1>
-    <p class="text-muted mt-sm">
-    {% if user.profile.is_teacher %}
-        你正在管理 {{ class_count }} 个班级
-    {% else %}
-        你在 {{ user.profile.class_group.name }} 学习中
-    {% endif %}
-    </p>
 
-    <div class="card mt-lg">
-        <div class="card-header">快速概览</div>
-        <p class="card-meta">更多功能将在后续版本中逐步开放。</p>
-    </div>
+    {% if user.profile.is_teacher %}
+        <div class="mt-lg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-md);">
+            <div class="card">
+                <div class="card-header">我的班级</div>
+                <div style="font-size:2rem;font-weight:300;">{{ class_count }}</div>
+                <div class="card-meta mt-sm">
+                    <a href="{% url 'classes:list' %}">管理班级 →</a>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">待批作业</div>
+                <div style="font-size:2rem;font-weight:300;">0</div>
+                <div class="card-meta mt-sm">后续版本开放</div>
+            </div>
+            <div class="card">
+                <div class="card-header">学生总数</div>
+                <div style="font-size:2rem;font-weight:300;">{{ student_count }}</div>
+                <div class="card-meta mt-sm">已激活 {{ active_student_count }} 人</div>
+            </div>
+        </div>
+    {% else %}
+        <div class="mt-lg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-md);">
+            <div class="card">
+                <div class="card-header">我的班级</div>
+                <div style="font-size:2rem;font-weight:300;">
+                    {% if user.profile.class_group %}
+                        {{ user.profile.class_group.name }}
+                    {% else %}
+                        未分配
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">待交作业</div>
+                <div style="font-size:2rem;font-weight:300;">0</div>
+                <div class="card-meta mt-sm">后续版本开放</div>
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
