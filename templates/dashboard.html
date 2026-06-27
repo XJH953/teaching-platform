@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}仪表盘 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>欢迎，{{ user.profile.get_display_name }}</h1>
+    <p class="text-muted mt-sm">
+    {% if user.profile.is_teacher %}
+        你正在管理 {{ class_count }} 个班级
+    {% else %}
+        你在 {{ user.profile.class_group.name }} 学习中
+    {% endif %}
+    </p>
+
+    <div class="card mt-lg">
+        <div class="card-header">快速概览</div>
+        <p class="card-meta">更多功能将在后续版本中逐步开放。</p>
+    </div>
+</div>
+{% endblock %}

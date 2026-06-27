@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}教学平台{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/transitions.css' %}">
+    {% block css %}{% endblock %}
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script src="https://unpkg.com/alpinejs@3.14.9/dist/cdn.min.js" defer></script>
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <nav class="navbar">
+        <div class="container navbar-inner">
+            <a href="{% url 'dashboard' %}" class="navbar-brand">教学平台</a>
+            <div class="navbar-links">
+                {% if user.profile.is_teacher %}
+                    <a href="{% url 'classes:list' %}">班级管理</a>
+                {% endif %}
+                <span class="navbar-user">
+                    {{ user.profile.get_display_name }}
+                </span>
+                <a href="{% url 'logout' %}">退出</a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main id="main-content" class="page-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{% static 'js/app.js' %}"></script>
+    {% block js %}{% endblock %}
+</body>
+</html>
