@@ -1,7 +1,7 @@
 import secrets
 import string
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.forms import AuthenticationForm
@@ -116,3 +116,9 @@ def reset_password_view(request, student_id):
         'password': new_password,
         'name': student.username,
     })
+
+
+def logout_view(request):
+    """支持 GET 和 POST 的退出视图"""
+    logout(request)
+    return redirect('/')
