@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}发起讨论 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade" style="max-width:720px;">
+    <h1>发起讨论</h1>
+
+    <form method="POST" class="card mt-lg">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_title" class="form-label">标题</label>
+            <input type="text" name="title" id="id_title" class="form-control"
+                   maxlength="200" required placeholder="请输入讨论标题">
+        </div>
+
+        <div class="form-group mt-md">
+            <label for="id_content" class="form-label">内容</label>
+            <textarea name="content" id="id_content" class="form-control"
+                      rows="6" required placeholder="请输入讨论内容"></textarea>
+        </div>
+
+        {% if user.profile.is_teacher and classes %}
+        <div class="form-group mt-md">
+            <label for="id_class_group" class="form-label">发布到班级（留空则为全校）</label>
+            <select name="class_group" id="id_class_group" class="form-control">
+                <option value="">-- 全校 --</option>
+                {% for cls in classes %}
+                    <option value="{{ cls.pk }}">{{ cls.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <div class="mt-lg">
+            <button type="submit" class="btn btn-primary">发布讨论</button>
+            <a href="{% url 'discussions:list' %}" class="btn" style="margin-left:var(--space-sm);">取消</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

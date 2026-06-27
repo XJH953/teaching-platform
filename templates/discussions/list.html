@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}讨论区 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-md);">
+        <h1>讨论区</h1>
+        <a href="{% url 'discussions:create' %}" class="btn btn-primary">发起讨论</a>
+    </div>
+
+    {% if topics %}
+        <div class="mt-lg">
+            {% for topic in topics %}
+                <a href="{% url 'discussions:detail' topic.pk %}" class="card" style="display:block;text-decoration:none;color:inherit;">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:var(--space-sm);">
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:500;font-size:1.0625rem;">
+                                {{ topic.title }}
+                            </div>
+                            <div class="card-meta mt-sm">
+                                {{ topic.author.profile.get_display_name }}
+                                · {{ topic.created_at|date:"Y-m-d H:i" }}
+                                · {{ topic.reply_count }} 条回复
+                                {% if topic.class_group %}
+                                    · {{ topic.class_group.name }}
+                                {% else %}
+                                    · 全校
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card mt-lg">
+            <p class="text-muted">暂无讨论，快来发起第一个话题吧！</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ topic.title }} · 讨论区 · 教学平台{% endblock %}
+
+{% block content %}
+<div class="container transition-fade" style="max-width:720px;">
+    <div style="margin-bottom:var(--space-md);">
+        <a href="{% url 'discussions:list' %}" style="text-decoration:none;color:var(--color-info);">&larr; 返回讨论列表</a>
+    </div>
+
+    <!-- Topic card -->
+    <div class="card">
+        <h1 style="font-size:1.375rem;margin-bottom:var(--space-sm);">{{ topic.title }}</h1>
+        <div class="card-meta">
+            {{ topic.author.profile.get_display_name }}
+            · 发布于 {{ topic.created_at|date:"Y-m-d H:i" }}
+            {% if topic.class_group %}
+                · {{ topic.class_group.name }}
+            {% else %}
+                · 全校
+            {% endif %}
+        </div>
+        <div style="margin-top:var(--space-md);line-height:1.8;white-space:pre-wrap;">
+            {{ topic.content }}
+        </div>
+    </div>
+
+    <!-- Replies -->
+    <h2 style="margin-top:var(--space-xl);font-size:1.125rem;">
+        回复（{{ replies|length }}）
+    </h2>
+
+    {% if replies %}
+        <div class="mt-md">
+            {% for reply in replies %}
+                <div class="card" style="margin-bottom:var(--space-sm);">
+                    <div class="card-meta" style="margin-bottom:var(--space-xs);">
+                        {{ reply.author.profile.get_display_name }}
+                        · {{ reply.created_at|date:"Y-m-d H:i" }}
+                    </div>
+                    <div style="line-height:1.7;white-space:pre-wrap;">
+                        {{ reply.content }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card mt-md">
+            <p class="text-muted">暂无回复，来说点什么吧。</p>
+        </div>
+    {% endif %}
+
+    <!-- Reply form -->
+    <div class="card mt-lg">
+        <h3 style="font-size:1.0625rem;margin-bottom:var(--space-md);">发表回复</h3>
+        <form method="POST" action="{% url 'discussions:reply' topic.pk %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <textarea name="content" class="form-control" rows="4"
+                          required placeholder="请输入回复内容"></textarea>
+            </div>
+            <div class="mt-md">
+                <button type="submit" class="btn btn-primary">发表回复</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

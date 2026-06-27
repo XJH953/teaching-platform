@@ -10,6 +10,7 @@ urlpatterns = [
     path('resources/', include('apps.resources.urls')),
     path('assignments/', include('apps.assignments.urls')),
     path('quizzes/', include('apps.quizzes.urls')),
+    path('discussions/', include('apps.discussions.urls')),
 ]
 
 if settings.DEBUG:

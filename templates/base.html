@@ -23,6 +23,7 @@
                 {% else %}
                     <a href="{% url 'assignments:student_list' %}">我的作业</a>
                 {% endif %}
+                <a href="{% url 'discussions:list' %}">讨论</a>
                 {% if user.profile.is_teacher %}
                     <a href="{% url 'quizzes:list' %}">测验</a>
                 {% else %}
