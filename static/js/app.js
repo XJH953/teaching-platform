@@ -134,6 +134,30 @@ async function deleteTask(title, taskId) {
     }
 }
 
+// 删除班级（老师操作）
+async function deleteClass(name, classId) {
+    if (!confirm(`确定要删除班级「${name}」吗？\n\n⚠️ 此操作不可撤销！\n班级中的所有学生、作业、提交记录都将一并删除。\n\n请在确认前确保已备份重要数据。`)) return;
+
+    try {
+        const resp = await fetch(`/classes/${classId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCsrfToken(),
+            },
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || '操作失败');
+        }
+    } catch (err) {
+        alert('网络错误，请稍后重试');
+    }
+}
+
 // 删除学生（老师操作）
 async function deleteStudent(name, studentId, classId) {
     if (!confirm(`确定要删除学生「${name}」吗？\n\n此操作不可撤销，该学生的所有提交记录也将一并删除。`)) return;

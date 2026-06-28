@@ -17,14 +17,19 @@
 
     {% if classes %}
         {% for class_group in classes %}
-        <a href="{% url 'classes:detail' class_group.id %}" style="text-decoration:none;color:inherit;">
-            <div class="card" style="cursor:pointer;">
+        <div class="card" style="display:flex;align-items:center;justify-content:space-between;">
+            <a href="{% url 'classes:detail' class_group.id %}" style="text-decoration:none;color:inherit;flex:1;">
                 <div class="card-header">{{ class_group.name }}</div>
                 <div class="card-meta">
                     {{ class_group.get_subject_display }} · {{ class_group.student_count }} 名学生 · {{ class_group.created_at|date:"Y-m-d" }}
                 </div>
-            </div>
-        </a>
+            </a>
+            <button class="btn btn-ghost"
+                    style="font-size:0.8125rem;color:var(--color-danger);flex-shrink:0;"
+                    onclick="event.preventDefault(); event.stopPropagation(); deleteClass('{{ class_group.name|escapejs }}', {{ class_group.id }})">
+                删除
+            </button>
+        </div>
         {% endfor %}
     {% else %}
         <div class="card text-center" style="padding:var(--space-2xl);">

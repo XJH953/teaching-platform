@@ -83,3 +83,19 @@ def delete_student_view(request, class_id, student_id):
         'success': True,
         'name': name,
     })
+
+
+@require_POST
+@teacher_required
+def delete_class_view(request, class_id):
+    """老师删除自己的班级"""
+    class_group = get_object_or_404(
+        ClassGroup, id=class_id, teacher=request.user.profile
+    )
+    name = class_group.name
+    class_group.delete()  # 级联删除学生、作业、提交记录
+
+    return JsonResponse({
+        'success': True,
+        'name': name,
+    })
