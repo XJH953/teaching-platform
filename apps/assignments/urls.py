@@ -8,6 +8,7 @@ urlpatterns = [
     path('analytics/', views.grade_analytics_view, name='analytics'),
     path('create/', views.task_create_view, name='create'),
     path('<int:pk>/', views.task_detail_view, name='detail'),
+    path('<int:pk>/delete/', views.delete_task_view, name='delete'),
     path('<int:pk>/submissions/', views.submission_list_view, name='submissions'),
     path('<int:task_pk>/grade/<int:submission_pk>/', views.grade_submission_view, name='grade'),
 

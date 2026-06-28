@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from .models import ClassGroup
 from .forms import ClassCreateForm
 
@@ -58,4 +60,26 @@ def class_detail_view(request, class_id):
     return render(request, 'classes/detail.html', {
         'class_group': class_group,
         'students': students,
+    })
+
+
+@require_POST
+@teacher_required
+def delete_student_view(request, class_id, student_id):
+    """老师删除班级中的一名学生"""
+    class_group = get_object_or_404(
+        ClassGroup, id=class_id, teacher=request.user.profile
+    )
+    student = get_object_or_404(User, id=student_id)
+
+    # 确认该学生属于此班级
+    if student.profile.class_group != class_group:
+        return JsonResponse({'success': False, 'error': '该学生不在此班级中'}, status=403)
+
+    name = student.username
+    student.delete()  # 级联删除 profile 和相关提交
+
+    return JsonResponse({
+        'success': True,
+        'name': name,
     })

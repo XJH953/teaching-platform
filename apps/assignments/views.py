@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Avg, Count, Q
 from django.db import IntegrityError
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from .models import Task, Submission
 from .forms import TaskForm
 
@@ -309,3 +311,17 @@ def grade_analytics_view(request):
         'student_stats': student_stats,
     }
     return render(request, 'assignments/analytics.html', context)
+
+
+@require_POST
+@teacher_required
+def delete_task_view(request, pk):
+    """老师删除自己布置的作业"""
+    task = get_object_or_404(Task, pk=pk, teacher=request.user.profile)
+    title = task.title
+    task.delete()  # 级联删除所有提交记录
+
+    return JsonResponse({
+        'success': True,
+        'title': title,
+    })

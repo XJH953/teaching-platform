@@ -18,7 +18,7 @@
                     <div class="mt-md">
                         {% for task in item.tasks %}
                             <div class="card">
-                                <div style="display:flex;align-items:center;justify-content:space-between;">
+                                <div style="display:flex;align-items:flex-start;justify-content:space-between;">
                                     <div>
                                         <a href="{% url 'assignments:detail' task.pk %}" style="font-weight:500;font-size:1.0625rem;">
                                             {{ task.title }}
@@ -31,8 +31,15 @@
                                             {% endif %}
                                         </div>
                                     </div>
-                                    <div class="card-meta" style="text-align:right;">
-                                        已提交 {{ task.submission_count_annotated }} / {{ task.total_students }} 人
+                                    <div style="display:flex;align-items:center;gap:var(--space-md);">
+                                        <div class="card-meta" style="text-align:right;">
+                                            已提交 {{ task.submission_count_annotated }} / {{ task.total_students }} 人
+                                        </div>
+                                        <button class="btn btn-ghost"
+                                                style="font-size:0.8125rem;color:var(--color-danger);padding:4px 12px;"
+                                                onclick="deleteTask('{{ task.title|escapejs }}', {{ task.pk }})">
+                                            删除
+                                        </button>
                                     </div>
                                 </div>
                             </div>

@@ -40,6 +40,11 @@
                                         onclick="resetStudentPassword('{{ student.user.username }}', {{ student.user.id }})">
                                     重置密码
                                 </button>
+                                <button class="btn btn-ghost"
+                                        style="font-size:0.8125rem;color:var(--color-danger);"
+                                        onclick="deleteStudent('{{ student.user.username }}', {{ student.user.id }}, {{ class_group.id }})">
+                                    删除
+                                </button>
                             </td>
                         </tr>
                         {% endfor %}

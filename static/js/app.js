@@ -110,6 +110,54 @@ async function resetStudentPassword(name, studentId) {
     }
 }
 
+// 删除作业（老师操作）
+async function deleteTask(title, taskId) {
+    if (!confirm(`确定要删除作业「${title}」吗？\n\n此操作不可撤销，所有学生的提交记录也将一并删除。`)) return;
+
+    try {
+        const resp = await fetch(`/assignments/${taskId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCsrfToken(),
+            },
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || '操作失败');
+        }
+    } catch (err) {
+        alert('网络错误，请稍后重试');
+    }
+}
+
+// 删除学生（老师操作）
+async function deleteStudent(name, studentId, classId) {
+    if (!confirm(`确定要删除学生「${name}」吗？\n\n此操作不可撤销，该学生的所有提交记录也将一并删除。`)) return;
+
+    try {
+        const resp = await fetch(`/classes/${classId}/student/${studentId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCsrfToken(),
+            },
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || '操作失败');
+        }
+    } catch (err) {
+        alert('网络错误，请稍后重试');
+    }
+}
+
 // 显示重置密码弹窗（老师视角）
 function showResetPasswordModal(name, password) {
     const overlay = document.createElement('div');
