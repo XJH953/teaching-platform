@@ -19,7 +19,7 @@ class ClassCreateForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-input',
-                'placeholder': '例如：语文一班',
+                'placeholder': '例如：高一语文一班',
             }),
             'subject': forms.Select(attrs={
                 'class': 'form-input',

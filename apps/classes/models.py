@@ -4,7 +4,14 @@ from django.db import models
 class ClassGroup(models.Model):
     SUBJECT_CHOICES = [
         ('chinese', '语文'),
+        ('math', '数学'),
+        ('english', '英语'),
+        ('physics', '物理'),
+        ('chemistry', '化学'),
+        ('biology', '生物'),
         ('politics', '政治'),
+        ('history', '历史'),
+        ('geography', '地理'),
     ]
 
     name = models.CharField('班级名称', max_length=100)
