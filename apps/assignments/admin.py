@@ -3,7 +3,7 @@ from .models import Task, Submission
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ['title', 'class_group', 'teacher', 'due_date', 'created_at']
+    list_display = ['title', 'teacher', 'due_date', 'created_at']
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):

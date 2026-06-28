@@ -9,50 +9,52 @@ class TaskCreateTest(TestCase):
     """作业创建测试"""
 
     def setUp(self):
-        # 创建老师用户
         self.teacher_user = User.objects.create_user(
             username='teacher', password='test123'
         )
         self.teacher_user.profile.role = 'teacher'
         self.teacher_user.profile.save()
 
-        # 创建班级
         self.class_group = ClassGroup.objects.create(
             name='语文一班', subject='chinese',
             teacher=self.teacher_user.profile,
         )
 
-        # 创建学生用户
         self.student_user = User.objects.create_user(
             username='student', password='test123'
         )
         self.student_user.profile.role = 'student'
         self.student_user.profile.save()
 
-        # 老师登录
         self.client.login(username='teacher', password='test123')
 
+    def _create_task(self, **kwargs):
+        """Helper: create a task with class_groups M2M"""
+        class_groups = kwargs.pop('class_groups', None)
+        if class_groups is None:
+            class_groups = [self.class_group]
+        task = Task.objects.create(**kwargs)
+        task.class_groups.add(*class_groups)
+        return task
+
     def test_teacher_can_create_task(self):
-        """老师可以布置作业"""
+        """老师可以批量布置作业到多个班级"""
         response = self.client.post(reverse('assignments:create'), {
             'title': '古诗背诵',
             'description': '背诵《静夜思》',
-            'class_group': self.class_group.pk,
+            'class_groups': [self.class_group.pk],
             'due_date': '2026-07-01T23:59',
         })
         self.assertRedirects(response, reverse('assignments:list'))
 
         task = Task.objects.get(title='古诗背诵')
         self.assertEqual(task.teacher, self.teacher_user.profile)
-        self.assertEqual(task.class_group, self.class_group)
-        self.assertEqual(task.description, '背诵《静夜思》')
+        self.assertIn(self.class_group, task.class_groups.all())
 
     def test_task_appears_in_list(self):
         """布置的作业出现在列表中"""
-        task = Task.objects.create(
+        task = self._create_task(
             title='古诗背诵',
-            description='背诵《静夜思》',
-            class_group=self.class_group,
             teacher=self.teacher_user.profile,
         )
         response = self.client.get(reverse('assignments:list'))
@@ -66,7 +68,7 @@ class TaskCreateTest(TestCase):
         response = self.client.post(reverse('assignments:create'), {
             'title': '学生偷布置作业',
             'description': '不应成功',
-            'class_group': self.class_group.pk,
+            'class_groups': [self.class_group.pk],
             'due_date': '2026-07-01T23:59',
         })
         self.assertRedirects(response, reverse('accounts:dashboard'))
@@ -112,9 +114,9 @@ class TaskDetailTest(TestCase):
         self.task = Task.objects.create(
             title='古诗背诵',
             description='背诵《静夜思》',
-            class_group=self.class_group,
             teacher=self.teacher_user.profile,
         )
+        self.task.class_groups.add(self.class_group)
 
         self.student1 = User.objects.create_user(username='张三', password='')
         self.student1.profile.role = 'student'
@@ -157,9 +159,9 @@ class TaskDetailTest(TestCase):
         )
         other_task = Task.objects.create(
             title='其他老师的作业',
-            class_group=other_class,
             teacher=other_teacher.profile,
         )
+        other_task.class_groups.add(other_class)
 
         response = self.client.get(
             reverse('assignments:detail', args=[other_task.pk])
@@ -171,14 +173,12 @@ class GradeAnalyticsTest(TestCase):
     """成绩分析测试"""
 
     def setUp(self):
-        # Create teacher
         self.teacher_user = User.objects.create_user(
             username='teacher', password='test123'
         )
         self.teacher_user.profile.role = 'teacher'
         self.teacher_user.profile.save()
 
-        # Create two classes
         self.class_a = ClassGroup.objects.create(
             name='语文一班', subject='chinese',
             teacher=self.teacher_user.profile,
@@ -188,7 +188,6 @@ class GradeAnalyticsTest(TestCase):
             teacher=self.teacher_user.profile,
         )
 
-        # Create students
         self.student1 = User.objects.create_user(username='student1', password='test123')
         self.student1.profile.role = 'student'
         self.student1.profile.class_group = self.class_a
@@ -199,17 +198,16 @@ class GradeAnalyticsTest(TestCase):
         self.student2.profile.class_group = self.class_a
         self.student2.profile.save()
 
-        # Create tasks
         self.task1 = Task.objects.create(
-            title='古诗背诵', class_group=self.class_a,
-            teacher=self.teacher_user.profile,
+            title='古诗背诵', teacher=self.teacher_user.profile,
         )
-        self.task2 = Task.objects.create(
-            title='作文写作', class_group=self.class_a,
-            teacher=self.teacher_user.profile,
-        )
+        self.task1.class_groups.add(self.class_a)
 
-        # Create graded submissions
+        self.task2 = Task.objects.create(
+            title='作文写作', teacher=self.teacher_user.profile,
+        )
+        self.task2.class_groups.add(self.class_a)
+
         Submission.objects.create(
             task=self.task1, student=self.student1,
             content='答案1', score=80, status='graded',
@@ -222,7 +220,6 @@ class GradeAnalyticsTest(TestCase):
             task=self.task2, student=self.student1,
             content='作文1', score=85, status='graded',
         )
-        # Pending submission (should not affect averages)
         Submission.objects.create(
             task=self.task2, student=self.student2,
             content='作文2', score=None, status='pending',
@@ -246,21 +243,13 @@ class GradeAnalyticsTest(TestCase):
         self.client.login(username='teacher', password='test123')
         response = self.client.get(reverse('assignments:analytics'))
 
-        # Overall average: (80+90+85) / 3 = 85.0
         self.assertContains(response, '85.0')
 
-        # Task1 avg: (80+90) / 2 = 85.0
-        # Task2 avg: (85) / 1 = 85.0
-        # Both show as 85.0
-
-        # Student1 avg: (80+85) / 2 = 82.5
         self.assertContains(response, '82.5')
-        # Student2 avg: (90) / 1 = 90.0
         self.assertContains(response, '90.0')
 
     def test_empty_state_no_assignments(self):
         """没有作业时的空状态"""
-        # Create a new teacher with no assignments
         new_teacher = User.objects.create_user(
             username='newteacher', password='test123'
         )

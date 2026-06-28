@@ -99,3 +99,55 @@ def delete_class_view(request, class_id):
         'success': True,
         'name': name,
     })
+
+
+@teacher_required
+def add_students_view(request, class_id):
+    """老师向已有班级添加学生"""
+    class_group = get_object_or_404(
+        ClassGroup, id=class_id, teacher=request.user.profile
+    )
+
+    if request.method == 'POST':
+        names_text = request.POST.get('student_names', '').strip()
+        if not names_text:
+            messages.error(request, '请输入至少一个学生姓名。')
+            return render(request, 'classes/add_students.html', {
+                'class_group': class_group,
+            })
+
+        name_list = [n.strip() for n in names_text.split('\n') if n.strip()]
+
+        # 去重
+        seen = set()
+        unique_names = []
+        for n in name_list:
+            if n not in seen:
+                seen.add(n)
+                unique_names.append(n)
+
+        created = 0
+        skipped = 0
+        for name in unique_names:
+            if User.objects.filter(username=name).exists():
+                skipped += 1
+                continue
+            user = User.objects.create_user(username=name, password='')
+            user.is_active = False
+            user.profile.class_group = class_group
+            user.profile.save()
+            user.save()
+            created += 1
+
+        if created:
+            messages.success(request,
+                f'成功导入 {created} 名学生到「{class_group.name}」。')
+        if skipped:
+            messages.warning(request,
+                f'跳过 {skipped} 个已存在的姓名。')
+
+        return redirect('classes:detail', class_id=class_id)
+
+    return render(request, 'classes/add_students.html', {
+        'class_group': class_group,
+    })

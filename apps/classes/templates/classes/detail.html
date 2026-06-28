@@ -7,6 +7,7 @@
     <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-lg);">
         <a href="{% url 'classes:list' %}" style="color:var(--color-text-muted);">← 返回</a>
         <h1 style="margin:0;">{{ class_group.name }}</h1>
+        <a href="{% url 'classes:add_students' class_group.id %}" class="btn btn-primary" style="font-size:0.875rem;padding:6px 16px;">+ 添加学生</a>
     </div>
 
     <p class="text-muted">{{ class_group.get_subject_display }} · {{ students|length }} 名学生</p>

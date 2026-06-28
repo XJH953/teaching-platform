@@ -34,9 +34,8 @@ def student_task_list_view(request):
             'no_class': True,
         })
 
-    tasks = Task.objects.filter(class_group=student_class).order_by('-created_at')
+    tasks = Task.objects.filter(class_groups=student_class).order_by('-created_at')
 
-    # Build a dict of task_id -> submission for the current student
     submission_map = {
         sub.task_id: sub
         for sub in Submission.objects.filter(
@@ -44,7 +43,6 @@ def student_task_list_view(request):
         )
     }
 
-    # Attach submission to each task for easy template access
     for task in tasks:
         task.student_submission = submission_map.get(task.pk)
 
@@ -61,8 +59,8 @@ def student_task_detail_view(request, pk):
     student_class = student.profile.class_group
 
     task = get_object_or_404(
-        Task.objects.select_related('class_group', 'teacher__user'),
-        pk=pk, class_group=student_class,
+        Task.objects.prefetch_related('class_groups').select_related('teacher__user'),
+        pk=pk, class_groups=student_class,
     )
 
     submission = Submission.objects.filter(
@@ -110,8 +108,8 @@ def student_submission_view(request, pk):
     student_class = student.profile.class_group
 
     task = get_object_or_404(
-        Task.objects.select_related('class_group', 'teacher__user'),
-        pk=pk, class_group=student_class,
+        Task.objects.prefetch_related('class_groups').select_related('teacher__user'),
+        pk=pk, class_groups=student_class,
     )
 
     submission = get_object_or_404(
@@ -125,6 +123,10 @@ def student_submission_view(request, pk):
     })
 
 
+# ============================================================
+# Teacher views
+# ============================================================
+
 @teacher_required
 def task_create_view(request):
     if request.method == 'POST':
@@ -133,7 +135,9 @@ def task_create_view(request):
             task = form.save(commit=False)
             task.teacher = request.user.profile
             task.save()
-            messages.success(request, f'作业"{task.title}"已布置')
+            form.save_m2m()  # 保存多对多班级关系
+            class_names = ', '.join(c.name for c in task.class_groups.all())
+            messages.success(request, f'作业「{task.title}」已布置到：{class_names}')
             return redirect('assignments:list')
     else:
         form = TaskForm(teacher=request.user.profile)
@@ -147,30 +151,29 @@ def task_list_view(request):
     profile = request.user.profile
     classes = profile.taught_classes.all().order_by('-created_at')
 
-    # Build a list of classes with their tasks and submission stats
-    class_data = []
-    for cls in classes:
-        tasks = cls.tasks.annotate(
-            submission_count_annotated=Count('submissions'),
-        ).order_by('-created_at')
+    # Get all tasks across all classes, deduplicated
+    tasks = Task.objects.filter(
+        class_groups__in=classes
+    ).annotate(
+        submission_count_annotated=Count('submissions'),
+    ).prefetch_related('class_groups').order_by('-created_at').distinct()
 
-        for task in tasks:
-            task.total_students = cls.student_count
+    # Attach total students count (sum across all assigned classes)
+    for task in tasks:
+        task.total_students = sum(c.student_count for c in task.class_groups.all())
 
-        class_data.append({
-            'class_group': cls,
-            'tasks': tasks,
-        })
-
-    return render(request, 'assignments/list.html', {'class_data': class_data})
+    return render(request, 'assignments/list.html', {
+        'class_data': classes,
+        'tasks': tasks,
+    })
 
 
 @teacher_required
 def task_detail_view(request, pk):
     """查看作业详情 + 提交列表"""
     task = get_object_or_404(
-        Task.objects.select_related('class_group', 'teacher__user'), pk=pk,
-        teacher=request.user.profile,
+        Task.objects.prefetch_related('class_groups').select_related('teacher__user'),
+        pk=pk, teacher=request.user.profile,
     )
     submissions = task.submissions.select_related(
         'student__profile'
@@ -205,7 +208,6 @@ def grade_submission_view(request, task_pk, submission_pk):
         task__pk=task_pk,
     )
 
-    # Verify the teacher owns this task
     if submission.task.teacher != request.user.profile:
         return redirect('accounts:dashboard')
 
@@ -240,29 +242,25 @@ def grade_analytics_view(request):
     """成绩分析页 — 老师查看所有班级的成绩统计"""
     profile = request.user.profile
 
-    # All tasks by this teacher
     tasks = Task.objects.filter(teacher=profile)
     submissions = Submission.objects.filter(task__in=tasks, status='graded')
 
-    # Overall stats
     total_assignments = tasks.count()
     total_submissions = Submission.objects.filter(task__in=tasks).count()
     graded_submissions = submissions.count()
     overall_avg = submissions.aggregate(avg=Avg('score'))['avg'] or 0
 
-    # Per-assignment stats
     task_stats = tasks.annotate(
         sub_count=Count('submissions'),
         graded_count_annotated=Count('submissions', filter=Q(submissions__status='graded')),
         avg_score=Avg('submissions__score', filter=Q(submissions__status='graded')),
     ).order_by('-created_at')
 
-    # Per-class stats
     classes = profile.taught_classes.all().order_by('-created_at')
     class_stats = []
     for c in classes:
         class_subs = Submission.objects.filter(
-            task__class_group=c, status='graded'
+            task__class_groups=c, status='graded'
         )
         class_stats.append({
             'class': c,
@@ -271,7 +269,6 @@ def grade_analytics_view(request):
             'student_count': c.student_count,
         })
 
-    # Per-student stats within this teacher's classes
     student_class_map = {}
     for c in classes:
         for student_profile in c.students.select_related('user').all():
@@ -319,7 +316,7 @@ def delete_task_view(request, pk):
     """老师删除自己布置的作业"""
     task = get_object_or_404(Task, pk=pk, teacher=request.user.profile)
     title = task.title
-    task.delete()  # 级联删除所有提交记录
+    task.delete()
 
     return JsonResponse({
         'success': True,

@@ -14,7 +14,7 @@
                 <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
                 {{ form.title }}
                 {% if form.title.errors %}
-                    <div class="text-muted mt-sm" style="color:var(--color-danger);">{{ form.title.errors.0 }}</div>
+                    <div style="color:var(--color-danger);font-size:0.8125rem;margin-top:4px;">{{ form.title.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -22,18 +22,25 @@
                 <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
                 {{ form.description }}
                 {% if form.description.errors %}
-                    <div class="text-muted mt-sm" style="color:var(--color-danger);">{{ form.description.errors.0 }}</div>
+                    <div style="color:var(--color-danger);font-size:0.8125rem;margin-top:4px;">{{ form.description.errors.0 }}</div>
                 {% endif %}
             </div>
 
             <div class="form-group">
-                <label for="{{ form.class_group.id_for_label }}" class="form-label">{{ form.class_group.label }}</label>
-                {{ form.class_group }}
-                {% if form.class_group.errors %}
-                    <div class="text-muted mt-sm" style="color:var(--color-danger);">{{ form.class_group.errors.0 }}</div>
+                <label class="form-label">{{ form.class_groups.label }}</label>
+                {% if form.class_groups.field.queryset.exists %}
+                    <div style="display:flex;flex-wrap:wrap;gap:8px 20px;padding:4px 0;">
+                        {% for checkbox in form.class_groups %}
+                            <label style="display:flex;align-items:center;gap:6px;font-size:0.9375rem;cursor:pointer;font-weight:normal;">
+                                {{ checkbox.tag }} {{ checkbox.choice_label }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-muted" style="font-size:0.875rem;">请先创建班级，才能布置作业。</div>
                 {% endif %}
-                {% if not form.class_group.field.queryset.exists %}
-                    <div class="text-muted mt-sm">请先创建班级，才能布置作业。</div>
+                {% if form.class_groups.errors %}
+                    <div style="color:var(--color-danger);font-size:0.8125rem;margin-top:4px;">{{ form.class_groups.errors.0 }}</div>
                 {% endif %}
             </div>
 
@@ -41,7 +48,7 @@
                 <label for="{{ form.due_date.id_for_label }}" class="form-label">{{ form.due_date.label }}</label>
                 {{ form.due_date }}
                 {% if form.due_date.errors %}
-                    <div class="text-muted mt-sm" style="color:var(--color-danger);">{{ form.due_date.errors.0 }}</div>
+                    <div style="color:var(--color-danger);font-size:0.8125rem;margin-top:4px;">{{ form.due_date.errors.0 }}</div>
                 {% endif %}
             </div>
 

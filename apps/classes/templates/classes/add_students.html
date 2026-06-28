@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}添加学生 · {{ class_group.name }}{% endblock %}
+
+{% block content %}
+<div class="container transition-fade" style="max-width: 520px;">
+    <div style="margin-bottom: var(--space-lg);">
+        <a href="{% url 'classes:detail' class_group.id %}" style="color:var(--color-text-muted);">← 返回 {{ class_group.name }}</a>
+    </div>
+
+    <h1>添加学生</h1>
+    <p class="text-muted mt-sm">
+        向「{{ class_group.name }}」（{{ class_group.get_subject_display }}）批量导入学生
+    </p>
+
+    <form method="POST" class="mt-lg">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label">学生名单</label>
+            <textarea name="student_names"
+                      class="form-input"
+                      rows="10"
+                      placeholder="每行一个学生姓名，例如：&#10;张三&#10;李四&#10;王五&#10;&#10;如有重名，请手动加后缀区分（张三1、张三2）"
+                      required
+                      autofocus></textarea>
+        </div>
+
+        <p class="text-muted" style="font-size:0.8125rem;margin-bottom:var(--space-md);">
+            💡 已存在的姓名会自动跳过，不会重复导入。
+        </p>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;">导入学生</button>
+    </form>
+</div>
+{% endblock %}

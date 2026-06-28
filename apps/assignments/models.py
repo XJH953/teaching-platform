@@ -5,9 +5,8 @@ class Task(models.Model):
     """作业"""
     title = models.CharField('作业标题', max_length=200)
     description = models.TextField('作业要求', blank=True, default='')
-    class_group = models.ForeignKey(
+    class_groups = models.ManyToManyField(
         'classes.ClassGroup',
-        on_delete=models.CASCADE,
         related_name='tasks'
     )
     teacher = models.ForeignKey(

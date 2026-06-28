@@ -52,7 +52,9 @@
                                     {{ task.title }}
                                 </a>
                             </td>
-                            <td style="padding:var(--space-sm) var(--space-md);">{{ task.class_group.name }}</td>
+                            <td style="padding:var(--space-sm) var(--space-md);">
+                                    {% for cg in task.class_groups.all %}{{ cg.name }}{% if not forloop.last %}、{% endif %}{% endfor %}
+                                </td>
                             <td style="padding:var(--space-sm) var(--space-md);">{{ task.sub_count }}</td>
                             <td style="padding:var(--space-sm) var(--space-md);">{{ task.graded_count_annotated }}</td>
                             <td style="padding:var(--space-sm) var(--space-md);">

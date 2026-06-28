@@ -48,7 +48,7 @@ def dashboard_view(request):
         student = request.user
         if student.profile.class_group:
             context['pending_count'] = Task.objects.filter(
-                class_group=student.profile.class_group,
+                class_groups=student.profile.class_group,
             ).exclude(
                 submissions__student=student,
             ).count()

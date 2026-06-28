@@ -12,7 +12,11 @@
 
     <div class="card mt-md">
         <div class="card-meta">
-            <div><strong>班级：</strong>{{ task.class_group.name }}（{{ task.class_group.get_subject_display }}）</div>
+            <div><strong>班级：</strong>
+                {% for cg in task.class_groups.all %}
+                    {{ cg.name }}（{{ cg.get_subject_display }}）{% if not forloop.last %}、{% endif %}
+                {% endfor %}
+            </div>
             <div class="mt-sm"><strong>截止时间：</strong>
                 {% if task.due_date %}
                     {{ task.due_date|date:"Y-m-d H:i" }}
