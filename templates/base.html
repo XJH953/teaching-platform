@@ -17,21 +17,13 @@
         <div class="container navbar-inner">
             <a href="{% url 'accounts:dashboard' %}" class="navbar-brand">教学平台</a>
             <div class="navbar-links">
-                <a href="{% url 'resources:list' %}">资源库</a>
                 {% if user.profile.is_teacher %}
                     <a href="{% url 'assignments:list' %}">作业</a>
                     <a href="{% url 'assignments:analytics' %}">成绩分析</a>
                 {% else %}
                     <a href="{% url 'assignments:student_list' %}">我的作业</a>
                 {% endif %}
-                <a href="{% url 'discussions:list' %}">讨论</a>
                 {% if user.profile.is_teacher %}
-                    <a href="{% url 'quizzes:list' %}">测验</a>
-                {% else %}
-                    <a href="{% url 'quizzes:list' %}">测验</a>
-                {% endif %}
-                {% if user.profile.is_teacher %}
-                    <a href="{% url 'resources:create' %}">发布新资源</a>
                     <a href="{% url 'classes:list' %}">班级管理</a>
                 {% endif %}
                 <span class="navbar-user">

@@ -7,10 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.accounts.urls')),
     path('classes/', include('apps.classes.urls')),
-    path('resources/', include('apps.resources.urls')),
     path('assignments/', include('apps.assignments.urls')),
-    path('quizzes/', include('apps.quizzes.urls')),
-    path('discussions/', include('apps.discussions.urls')),
 ]
 
 if settings.DEBUG:
